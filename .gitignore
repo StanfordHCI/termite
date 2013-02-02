@@ -1,0 +1,9 @@
+.DS_Store
+*.pyc
+closure-compiler.jar
+/lib
+/client-template/*.min.js
+/client-template/d3.v3.js
+/client-template/data
+/mallet-2.0.7
+/stmt-0.4.0/tmt-0.4.0.jar

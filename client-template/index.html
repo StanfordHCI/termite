@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Termite | Topic Model Visualization</title>
+	<link href="termite.css" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript" src="d3.v3.js"></script>
+	<script type="text/javascript" src="FullTermTopicProbabilityModel.js"></script>
+	<script type="text/javascript" src="SeriatedTermTopicProbabilityModel.js"></script>
+	<script type="text/javascript" src="FilteredTermTopicProbilityModel.js"></script>
+	<script type="text/javascript" src="TermFrequencyModel.js"></script>
+	<script type="text/javascript" src="ViewParameters.js"></script>
+	<script type="text/javascript" src="TermTopicMatrixView.js"></script>
+	<script type="text/javascript" src="TermFrequencyView.js"></script>
+	<script type="text/javascript" src="html5slider.js"></script>
+<script type="text/javascript">
+function init()
+{
+	// Declare models and views
+	var seriatedTermTopicProbabilityModel = SeriatedTermTopicProbabilityModel();
+	var filteredTermTopicProbilityModel = FilteredTermTopicProbilityModel();
+	
+	seriatedTermTopicProbabilityModel.load( filteredTermTopicProbilityModel );	
+	
+	d3.select("input#UserSpecifiedNumTerms")
+		.on("change", function(){ 
+			var state = {
+				userNumTerms: d3.select("input#UserSpecifiedNumTerms")[0][0].value,
+				userSalientTerms: d3.select("input#UserSpecifiedNumSalientTerms")[0][0].value,
+				userDefinedTerms: d3.select("input#UserSpecifiedVisibleTerms")[0][0].value.split(/[ ,;]+/g)
+			};
+			filteredTermTopicProbilityModel.update(state); 
+			d3.select("div#UserSpecifiedNumTermsResults").text(state.userNumTerms); 
+		})
+	d3.select("input#UserSpecifiedNumSalientTerms")
+		.on("change", function() {
+			var state = {
+				userNumTerms: d3.select("input#UserSpecifiedNumTerms")[0][0].value,
+				userSalientTerms: d3.select("input#UserSpecifiedNumSalientTerms")[0][0].value,
+				userDefinedTerms: d3.select("input#UserSpecifiedVisibleTerms")[0][0].value.split(/[ ,;]+/g)
+			};
+			console.log(state.userSalientTerms);
+			var feedback = d3.select("div#UserSpecifiedNumSalientTerms");
+			filteredTermTopicProbilityModel.update(state);
+			d3.select("div#UserSpecifiedNumSalientTermsResults").text(state.userSalientTerms); 
+		})
+	d3.select("input#UserSpecifiedVisibleTerms")
+		.on("keyup", function() {
+			var state = {
+				userNumTerms: d3.select("input#UserSpecifiedNumTerms")[0][0].value,
+				userSalientTerms: d3.select("input#UserSpecifiedNumSalientTerms")[0][0].value,
+				userDefinedTerms: d3.select("input#UserSpecifiedVisibleTerms")[0][0].value.split(/[ ,;]+/g)
+			};
+			filteredTermTopicProbilityModel.update(state);
+		})
+
+}
+</script>
+</head>
+<body onload="init()">
+<div id="pageBackground">
+	<div id="pageFrame">
+		<div id="pageHeader">
+			<div id="pageLogo" class="headerObject">
+				<span class="title">Termite</span><span class="subtitle"> | Topic Model Visualization</span><br/>
+				<span class="credits">Visualization by Jason Chuang, Ashley Jin, Stanford Vis Group</span><br/>
+			</div>
+			<div id="pageControl" class="headerObject">
+				<div class="line">
+					Currently showing 
+					<div id="TotalTerms" style="display:inline">25</div> 
+					total terms.
+				</div>
+				<div class="line">
+					Show top:
+					<input id="UserSpecifiedNumTerms" style="display:inline; width: 160px; vertical-align: -5px;" type="range" max="100" min="10" value="25"/> 
+					<div id="UserSpecifiedNumTermsResults" style="display:inline">25</div> 
+					terms by affinity.</div>
+				<div class="line">
+					Show top:
+					<input id="UserSpecifiedNumSalientTerms" style="display:inline; width: 160px; vertical-align: -5px;" type="range" max="100" min="0" value="0"/>
+					<div id="UserSpecifiedNumSalientTermsResults" style="display:inline-block">0</div> 
+					terms by saliency.</div>
+				<div class="line">
+					Always showing terms: 
+					<input id="UserSpecifiedVisibleTerms" style="display:inline; width: 200px; vertical-align: -2px" type="text"/>
+					<div id="UserSpecifiedVisibleTermsResults" style="display:inline-block"></div>
+				</div>
+				<div class="line">
+					<div id="NotVisibleTermsPrefix" style="display:inline-block; visibility:hidden">Cannot find these terms: </div>
+					<div id="NotVisibleTerms" style="display:inline-block; visibility:hidden"></div>
+				</div>
+			</div>
+		</div>
+		<div id="pageContent">
+			<table>
+				<tr>
+					<td style="vertical-align: top"><div id="termTopicMatrixContainer"></div></td>
+					<td><div id="termFrequencyContainer"></div></td>
+				</tr>
+			</table>
+			<div id="pageDetails">
+				<p>This visualization shows the topical distribution of words in a corpus.</p>
+				<p>The area of a circle is proportional to a word's frequency in a topic.</p>
+			</div>
+		</div>
+		<div id="pageFooter">
+			http://termite.stanford.edu | Build 1
+		</div>
+	</div>
+</div>
+</body>
+</html>

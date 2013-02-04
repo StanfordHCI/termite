@@ -21,7 +21,7 @@ class DocumentsAPI( object ):
 		self.data = {}
 		filename = self.path
 		with open( filename, 'r' ) as f:
-			lines = f.read().decode( 'utf-8' ).splitlines()
+			lines = f.read().decode( 'utf-8', 'ignore' ).splitlines()
 			for line in lines:
 				docID, docContent = line.split( '\t' )
 				self.data[ docID ] = docContent

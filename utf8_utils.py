@@ -56,7 +56,7 @@ class UnicodeWriter:
 		self.writer.writerow([s.encode("utf-8") for s in row])
 		# Fetch UTF-8 output from the queue ...
 		data = self.queue.getvalue()
-		data = data.decode("utf-8")
+		data = data.decode("utf-8", "ignore")
 		# ... and reencode it into the target encoding
 		data = self.encoder.encode(data)
 		# write to the target stream

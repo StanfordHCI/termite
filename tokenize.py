@@ -20,8 +20,11 @@ class Tokenize( object ):
 	Support for multiple files, directory(ies), and Lucene considered for future releases.
 	"""
 	
-	DEFAULT_TOKENIZATION = r'[0-9A-Za-z_]*[A-Za-z_]+[0-9A-Za-z_]*'
-#	DEFAULT_MALLET_TOKENIZATION = r'[\p{L}\p{M}]+'
+	WHITESPACE_TOKENIZATION = r'[^ ]+'
+	ALPHANUMERIC_TOKENIZATION = r'[0-9A-Za-z_]*[A-Za-z_]+[0-9A-Za-z_]*'
+	ALPHA_TOKENIZATION = r'[A-Za-z_]+'
+	UNICODE_TOKENIZATION = r'[\p{L}\p{M}]+'
+	DEFAULT_TOKENIZATION = ALPHA_TOKENIZATION
 	
 	def __init__( self, logging_level ):
 		self.logger = logging.getLogger( 'Tokenize' )

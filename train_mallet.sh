@@ -26,6 +26,7 @@ $MALLET/bin/mallet import-file \
 	--input $INPUT \
 	--output $OUTPUT/text.vectors \
 	--line-regex "^(\S*)\t(.*)$" \
+	--token-regex "[^ ]+" \
 	--name 0 --label 1 --data 2 \
 	--remove-stopwords true --encoding utf-8 --keep-sequence
 #	--remove-stopwords false --encoding utf-8 --keep-sequence

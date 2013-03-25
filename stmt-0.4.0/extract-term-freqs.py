@@ -1,4 +1,4 @@
-#!/u/jcchuang/python/bin/python
+#!/usr/bin/X11/python
 
 import argparse
 

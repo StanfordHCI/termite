@@ -1,5 +1,6 @@
 body {
  background-color: #ccc;
+ cursor: default;
 }
 div, p {
  padding: 0;

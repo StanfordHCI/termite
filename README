@@ -12,8 +12,8 @@ Computer Science Dept, Stanford University
 http://vis.stanford.edu/papers/termite
 
 This tool is developed by:
-    :  Jason Chuang <jcchuang@cs.stanford.edu>
-    :  Ashley Jin <ashpjin@cs.stanford.edu>
+    * Jason Chuang <jcchuang@cs.stanford.edu>
+    * Ashley Jin <ashpjin@cs.stanford.edu>
 
 and is distributed under the BSD-3 license.
 
@@ -70,26 +70,26 @@ Google closure javascript compiler
     Project website: https://developers.google.com/closure/compiler/
     Developed by Google engineers
     Distributed under an Apache license: lib/LICENSE-closure-compiler
-    
+
+Backbone
+    Project website: http://backbonejs.org
+    Developed by Jeremy Ashkenas, DocumentCloud Inc.
+    Distributed under a MIT license: lib/LICENSE-backbone
+
+Underscore
+    Project website: http://underscorejs.org
+    Developed by Jeremy Ashkenas, DocumentCloud Inc.
+    Distributed under a MIT license: lib/LICENSE-underscore
+
+jQuery
+    Project website: http://jquery.com
+    Developed by the jQuery Foundation
+    Distributed under a MIT license: lib/LICENSE-jquery
+
 html5slider
     Project website: https://github.com/fryn/html5slider
     Developed by Frank Yan
     Distributed under an MIT license: http://opensource.org/licenses/MIT
-    
-Backbone
-    Project website: http://backbonejs.org/
-    Developed by Jeremy Ashkenas, DocumentCloud Inc.
-    Distributed under a MIT license: https://github.com/documentcloud/backbone/blob/master/LICENSE
-
-Underscore
-    Project website: http://underscorejs.org/
-    Developed by Jeremy Ashkenas, DocumentCloud Inc.
-    Distributed under a MIT license: https://github.com/documentcloud/underscore/blob/master/LICENSE
-
-jQuery
-    Project website: http://jquery.com/
-    Developed by the jQuery Foundation
-    Distributed under a MIT license: https://github.com/jquery/jquery/blob/master/MIT-LICENSE.txt
 
 ------------------
   ONE-TIME SETUP
@@ -97,14 +97,17 @@ jQuery
 Run the setup script to fetch the following tools, libraries, and prepare all javascript
 files needed by Termite. This script only needs to be run once when Termite is first
 downloaded onto a new machine.
-    >>  ./setup.sh
+    >> ./setup.sh
 
 Libraries fetched include:
-    :   mallet
-    :   stmt
-    :   closure-compiler.js
-    :   d3.js
-    :   html5slider.js
+    * mallet
+    * stmt
+    * closure-compiler.js
+    * d3.v3.js
+    * jquery.js
+    * underscore.js
+    * backbone.js
+    * html5slider.js
 
 The script creates a minified version of all javascript files.
 
@@ -117,26 +120,26 @@ using a web browser, described in the next section.
 
 Customize configuration file with the following information. A sample configuration
 file can be found in 'example.cfg'
-    [Corpus]    :   path to text corpus
-    [TopicModel]:   directory for holding topic model outputs
-    [TopicModel]:   number of topics to train
-    [TopicModel]:   topic model (either mallet or stmt)
-    [Termite]   :   number of terms to seriate
-    [Termite]   :   path to save Termite-internal working files
+    [Corpus]       path to text corpus
+    [TopicModel]   directory for holding topic model outputs
+    [TopicModel]   number of topics to train
+    [TopicModel]   topic model (either mallet or stmt)
+    [Termite]      number of terms to seriate
+    [Termite]      path to save Termite-internal working files
     
 Process the text corpus, and build a topic model by running the execution script.
 Execution time will vary depending on the size of the corpus.
-    >>  ./execute.py <your_config_file.cfg>
+    >> ./execute.py <your_config_file.cfg>
 
 The execution script calls in order: 
-    1.  tokenize.py                  Tokenize the text corpus
-    2.  train_mallet.py              Train a topic model using MALLET
-        train_stmt.py                or STMT.
-    3.  compute_saliency.py          Compute term saliency
-    4.  compute_similarity.py        Compute term similarity
-    5.  compute_seriation.py:        Seriates terms
-    6.  prepare_data_for_client.py:  Generates datafiles for client
-    7.  prepare_vis_for_client.py:   Copies necessary scripts for client
+    1. pipeline/tokenize.py                  Tokenize the text corpus
+    2. pipeline/train_mallet.py              Train a topic model using MALLET
+       pipeline/train_stmt.py                or STMT.
+    3. pipeline/compute_saliency.py          Compute term saliency
+    4. pipeline/compute_similarity.py        Compute term similarity
+    5. pipeline/compute_seriation.py:        Seriates terms
+    6. pipeline/prepare_data_for_client.py:  Generates datafiles for client
+    7. pipeline/prepare_vis_for_client.py:   Copies necessary scripts for client
 
 ---------------------------- 
   VIEW TOPIC MODEL OUTPUTS
@@ -148,15 +151,15 @@ web server. Alternatively, you may copy the output folder to a web server to pub
 Termite outputs are stored in the 'public_html' subfolder within the output directory.
 
 To set up a local webserver:
-    1.  Change into output directory (specified in the configuration file)
-        >> cd <output_folder>/public_html
-    2.  Start a local server using python
-        >>  ./web.sh
-    3.  Open http://localhost:8888 in a modern web browser (Chrome, Safari, Firefox, or Opera)
-        to view a visualization of the model outputs.
+    1. Change into output directory (specified in the configuration file)
+       >> cd <output_folder>/public_html
+    2. Start a local server using python
+       >> ./web.sh
+    3. Open http://localhost:8888 in a modern web browser (Chrome, Safari, Firefox, or Opera)
+       to view a visualization of the model outputs.
 
 To publish the results on a webserver:
-    1.  Copy public_html directory to your remote server.
+    1. Copy public_html directory to your remote server.
 
 -----------------------------
   TOPIC MODEL VISUALIZATION
@@ -173,7 +176,10 @@ bar view, the associated term, topic, bar, and circles will be highlighted in bo
 ---------------------------
 The Termite visualization tool has a set of user controls in the top right section of the
 webpage. The user may specify
-    :   the number of terms with highest affinity to show
-    :   the number of terms with highest saliency to show
-    :   specific terms to always show
+    * the number of terms with highest affinity to show
+    * the number of terms with highest saliency to show
+    * always display specific terms
+    * always display 20 most frequent terms belonging to selected topics
+    * click on a topic to select/color the topic
+    * mouse over a topic/term to highlight the topic/term
 (Note: the highest affinity term set and highest saliency term set may contain overlapping words)

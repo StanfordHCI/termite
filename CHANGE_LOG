@@ -1,0 +1,36 @@
+Termite Topic Model Visualization
+Jason Chuang, Ashley Jin
+http://termite.stanford.edu
+
+--------------------------------------------------------------------------------
+
+Version 1.0 (Released on Feb 1, 2013)
+
+Data processing pipeline:
+  - Tokenize a text corpus.
+  - Build a topic model using MALLET or STMT.
+  - Compute term similarity and saliency statistics.
+  - Pre-compute term seriation.
+  - Generate a visualization viewable in a web browser.
+
+Visualization:
+  - Display topical term frequency using a tabular circular view.
+  - Display global term frequency using a bar chart.
+  - Embed (save/load) visualization states using URL.
+  - Options for selecting the number of frequent/salient terms to display.
+
+--------------------------------------------------------------------------------
+
+Version 1.1 (Released on March 30, 2013)
+
+Data processing pipeline:
+  - Updated similarity computation.
+  - Fixed minor bugs.
+
+Visualization:
+  - Select and color latent topics.
+  - Display top terms belonging to selected topics.
+  - Re-order terms by topical frequency.
+  - Brushing-n-linking on mouse over.
+
+--------------------------------------------------------------------------------

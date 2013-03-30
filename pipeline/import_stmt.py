@@ -108,9 +108,10 @@ class ImportStmt( object ):
 		Transpose the input topic-term distributions.
 		Ensure all values are greater than or equal to 0.
 		"""
-		matrix = []
-		for i in range(self.model.term_count):
-			matrix.append( [ max(0, float(x[i])) for x in self.topic_term_counts] )
+		matrix = [ [0] * self.model.topic_count ] * self.model.term_count
+		for j, line in enumerate( self.topic_term_counts ):
+			for i, value in enumerate(line):
+				matrix[i][j] = max( 0, float(value) )
 		self.model.term_topic_matrix = matrix
 
 def main():

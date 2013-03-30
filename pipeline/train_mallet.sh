@@ -7,12 +7,14 @@ then
 	exit -1
 fi
 
-MALLET=mallet-2.0.7
+MALLET=mallet-2.0.7/
 INPUT=$1
 OUTPUT=$2
 TOPICS=$3
 
 
+
+echo "--------------------------------------------------------------------------------"
 echo "Training [ $INPUT ] --> [ $OUTPUT ]..."
 echo
 
@@ -39,3 +41,5 @@ $MALLET/bin/mallet train-topics \
 	--topic-word-weights-file $OUTPUT/topic-word-weights.txt \
 	--word-topic-counts-file $OUTPUT/word-topic-counts.txt \
 	--num-topics $TOPICS
+
+echo "--------------------------------------------------------------------------------"

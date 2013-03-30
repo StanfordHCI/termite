@@ -6,14 +6,15 @@ import argparse
 import ConfigParser
 import logging
 
+import time
 import os
-from tokenize import Tokenize
-from import_mallet import ImportMallet
-from import_stmt import ImportStmt
-from compute_saliency import ComputeSaliency
-from compute_similarity import ComputeSimilarity
-from compute_seriation import ComputeSeriation
-from prepare_data_for_client import PrepareDataForClient
+from pipeline.tokenize import Tokenize
+from pipeline.import_mallet import ImportMallet
+from pipeline.import_stmt import ImportStmt
+from pipeline.compute_saliency import ComputeSaliency
+from pipeline.compute_similarity import ComputeSimilarity
+from pipeline.compute_seriation import ComputeSeriation
+from pipeline.prepare_data_for_client import PrepareDataForClient
 
 class Execute( object ):
 
@@ -64,25 +65,36 @@ class Execute( object ):
 		self.logger.info( '    num_topics = %d', num_topics                                                  )
 		self.logger.info( '    number_of_seriated_terms = %s', number_of_seriated_terms                      )
 		self.logger.info( '--------------------------------------------------------------------------------' )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
 		Tokenize( self.logger.level ).execute( corpus_format, corpus_path, data_path )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
 		if model_library == 'stmt':
-			command = './train_stmt.sh {} {} {}'.format( data_path + '/tokens/tokens.txt', model_path, num_topics )
+			command = 'pipeline/train_stmt.sh {} {} {}'.format( data_path + '/tokens/tokens.txt', model_path, num_topics )
 			os.system( command )
 			ImportStmt( self.logger.level ).execute( model_library, model_path, data_path )
 		if model_library == 'mallet':
-			command = './train_mallet.sh {} {} {}'.format( data_path + '/tokens/tokens.txt', model_path, num_topics )
+			command = 'pipeline/train_mallet.sh {} {} {}'.format( data_path + '/tokens/tokens.txt', model_path, num_topics )
 			os.system( command )
 			ImportMallet( self.logger.level ).execute( model_library, model_path, data_path )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
 		ComputeSaliency( self.logger.level ).execute( data_path )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
+
 		ComputeSimilarity( self.logger.level ).execute( data_path )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
+
 		ComputeSeriation( self.logger.level ).execute( data_path, number_of_seriated_terms )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
+
 		PrepareDataForClient( self.logger.level ).execute( data_path )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
-		command = './prepare_vis_for_client.sh {}'.format( data_path )
+		command = 'pipeline/prepare_vis_for_client.sh {}'.format( data_path )
 		os.system( command )
+		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 
 #-------------------------------------------------------------------------------#
 

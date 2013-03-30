@@ -19,6 +19,7 @@ class ComputeSimilarity( object ):
 	"""
 	
 	DEFAULT_SLIDING_WINDOW_SIZE = 10
+	MAX_FREQ = 100.0
 	
 	def __init__( self, logging_level ):
 		self.logger = logging.getLogger( 'ComputeSimilarity' )
@@ -191,27 +192,56 @@ class ComputeSimilarity( object ):
 			freq_a = occurrence[ firstToken ]
 			freq_b = occurrence[ secondToken ]
 			freq_ab = cooccurrence[ (firstToken, secondToken) ]
-			g2_stats[ (firstToken, secondToken) ] = self.getG2( freq_all, freq_ab, freq_a, freq_b )
+			
+			scale = ComputeSimilarity.MAX_FREQ / freq_all
+			rescaled_freq_all = freq_all * scale
+			rescaled_freq_a = freq_a * scale
+			rescaled_freq_b = freq_b * scale
+			rescaled_freq_ab = freq_ab * scale
+			if rescaled_freq_a > 1.0 and rescaled_freq_b > 1.0:
+				g2_stats[ (firstToken, secondToken) ] = self.getG2( freq_all, freq_ab, freq_a, freq_b )
 		return g2_stats
 	
 	def combineSimilarityMatrices( self ):
 		self.logger.info( 'Combining similarity matrices...' )
 		self.similarity.combined_g2 = {}
-		for pair in itertools.permutations( self.similarity.unigram_counts.keys(), r = 2 ):
-			key = ( pair[0], pair[1] )
-			if pair[0] < pair[1]:
-				orderedKey = key
-			else:
-				orderedKey = ( pair[1], pair[0] )
-			score = 0.0
-			if orderedKey in self.similarity.document_g2:
-				score += self.similarity.document_g2[ orderedKey ]
-			if orderedKey in self.similarity.window_g2:
-				score += self.similarity.window_g2[ orderedKey ]
-			if key in self.similarity.collocation_g2:
-				score += self.similarity.collocation_g2[ key ]
-			if score > 0.0:
-				self.similarity.combined_g2[ key ] = score
+		
+		keys_queued = []
+		for key in self.similarity.document_g2:
+			( firstToken, secondToken ) = key
+			otherKey = ( secondToken, firstToken )
+			keys_queued.append( key )
+			keys_queued.append( otherKey )
+		for key in self.similarity.window_g2:
+			( firstToken, secondToken ) = key
+			otherKey = ( secondToken, firstToken )
+			keys_queued.append( key )
+			keys_queued.append( otherKey )
+		for key in self.similarity.collocation_g2:
+			keys_queued.append( key )
+		
+		keys_processed = {}
+		for key in keys_queued:
+			keys_processed[ key ] = False
+		
+		for key in keys_queued:
+			if not keys_processed[ key ]:
+				keys_processed[ key ] = True
+				
+				( firstToken, secondToken ) = key
+				if firstToken < secondToken:
+					orderedKey = key
+				else:
+					orderedKey = ( secondToken, firstToken )
+				score = 0.0
+				if orderedKey in self.similarity.document_g2:
+					score += self.similarity.document_g2[ orderedKey ]
+				if orderedKey in self.similarity.window_g2:
+					score += self.similarity.window_g2[ orderedKey ]
+				if key in self.similarity.collocation_g2:
+					score += self.similarity.collocation_g2[ key ]
+				if score > 0.0:
+					self.similarity.combined_g2[ key ] = score
 
 #-------------------------------------------------------------------------------#
 

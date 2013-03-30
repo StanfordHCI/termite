@@ -182,30 +182,23 @@ class SeriationAPI( object ):
 
 class ClientAPI( object ):
 	SUBFOLDER = 'public_html/data'
-	TERM_INFO = 'term-info.json'
-	TERM_INFO_TXT = 'term-info.txt'
-	TERM_INFO_FIELDS = [ 'term', 'ranking', 'ordering', 'frequency', 'saliency' ]
-	TERM_SUBINDEX = 'submatrix-term-index.txt'
-	TOPIC_SUBINDEX = 'submatrix-topic-index.txt'
-	TERM_TOPIC_SUBMATRIX = 'submatrix-term-topic.txt'
+	SERIATED_PARAMETERS = 'seriated-parameters.json'
+	FILTERED_PARAMETERS = 'filtered-parameters.json'
+	GLOBAL_TERM_FREQS = 'global-term-freqs.json'
 	
 	def __init__( self, path ):
 		self.path = '{}/{}/'.format( path, ClientAPI.SUBFOLDER )
-		self.term_info = []
-		self.term_index = []
-		self.topic_index = []
-		self.term_topic_matrix = []
+		self.seriated_parameters = {}
+		self.filtered_parameters = {}
+		self.global_term_freqs = {}
 	
 	def read( self ):
-		self.term_info = ReadAsJson( self.path + ClientAPI.TERM_INFO )
-		self.topic_index = ReadAsList( self.path + ClientAPI.TOPIC_SUBINDEX )
-		self.term_index = ReadAsList( self.path + ClientAPI.TERM_SUBINDEX )
-		self.term_topic_matrix = ReadAsMatrix( self.path + ClientAPI.TERM_TOPIC_SUBMATRIX )
+		self.seriated_parameters = ReadAsJson( self.path + ClientAPI.SERIATED_PARAMETERS )
+		self.filtered_parameters = ReadAsJson( self.path + ClientAPI.FILTERED_PARAMETERS )
+		self.global_term_freqs = ReadAsJson( self.path + ClientAPI.GLOBAL_TERM_FREQS )
 	
 	def write( self ):
 		CheckAndMakeDirs( self.path )
-		WriteAsJson( self.term_info, self.path + ClientAPI.TERM_INFO )
-		WriteAsTabDelimited( self.term_info, self.path + ClientAPI.TERM_INFO_TXT, ClientAPI.TERM_INFO_FIELDS )
-		WriteAsList( self.topic_index, self.path + ClientAPI.TOPIC_SUBINDEX )
-		WriteAsList( self.term_index, self.path + ClientAPI.TERM_SUBINDEX )
-		WriteAsMatrix( self.term_topic_matrix, self.path + ClientAPI.TERM_TOPIC_SUBMATRIX )
+		WriteAsJson( self.seriated_parameters, self.path + ClientAPI.SERIATED_PARAMETERS )
+		WriteAsJson( self.filtered_parameters, self.path + ClientAPI.FILTERED_PARAMETERS )
+		WriteAsJson( self.global_term_freqs, self.path + ClientAPI.GLOBAL_TERM_FREQS )

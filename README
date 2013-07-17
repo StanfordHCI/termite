@@ -49,47 +49,62 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   ADDITIONAL CREDITS
 ----------------------
 Termite requires the use of the following libraries and tools.
-We thank their respective authors for developing and distributing the tools.
+We thank their respective authors for developing and distributing these tools.
 
 Mallet: Machine learning for language toolkit
     Project website: http://mallet.cs.umass.edu
     Developed by Andrew McCallum, et al.
-    Distributed under a CPL license: lib/LICENSE-mallet
+    Distributed under a CPL license: externals/mallet-2.0.7/LICENSE
 
 STMT: Stanford topic modeling toolbox
     Project website: http://nlp.stanford.edu/software/tmt
     Developed by Daniel Ramage, et al.
-    Distributed under a GNU license: lib/LICENSE-stmt
+    Distributed under a GNU license: externals/stmt-0.4.0/LICENSE
 
 D3 javascript visualization library
     Project website: http://d3js.org
     Developed by Mike Bostock, et al.
-    Distributed under a BSD license: lib/LICENSE-d3
+    Distributed under a BSD license: externals/d3-v3/LICENSE
 
 Google closure javascript compiler
     Project website: https://developers.google.com/closure/compiler/
     Developed by Google engineers
-    Distributed under an Apache license: lib/LICENSE-closure-compiler
+    Distributed under an Apache license: externals/closure-latest/LICENSE
 
 Backbone
     Project website: http://backbonejs.org
     Developed by Jeremy Ashkenas, DocumentCloud Inc.
-    Distributed under a MIT license: lib/LICENSE-backbone
+    Distributed under a MIT license: externals/backbone-latest/LICENSE
 
 Underscore
     Project website: http://underscorejs.org
     Developed by Jeremy Ashkenas, DocumentCloud Inc.
-    Distributed under a MIT license: lib/LICENSE-underscore
+    Distributed under a MIT license: externals/underscore-latest/LICENSE
 
 jQuery
     Project website: http://jquery.com
     Developed by the jQuery Foundation
-    Distributed under a MIT license: lib/LICENSE-jquery
+    Distributed under a MIT license: externals/jquery-1.9.1/LICENSE
+
+jQuery UI
+    Project website: http://jqueryui.com/
+    Developed by the jQuery UI Team
+    Distributed under a MIT license: externals/jquery-ui-1.10.3/LICENSE
+
+Chosen
+	Project website: http://harvesthq.github.io/chosen/
+	Developed by Patrick Filler
+	Distributed under a MIT license: externals/chosen-0.11.1/LICENSE
 
 html5slider
     Project website: https://github.com/fryn/html5slider
     Developed by Frank Yan
     Distributed under an MIT license: http://opensource.org/licenses/MIT
+
+JSDoc3
+	Project website: http://usejsdoc.org/
+	Developed by the JSDoc 3 documentation project
+	Distributed under the Creative Commons Attribution-ShareAlike 3.0 Unported License: http://creativecommons.org/licenses/by-sa/3.0/
 
 ------------------
   ONE-TIME SETUP
@@ -100,13 +115,15 @@ downloaded onto a new machine.
     >> ./setup.sh
 
 Libraries fetched include:
-    * mallet
-    * stmt
-    * closure-compiler.js
-    * d3.v3.js
+    * MALLET
+    * STMT
+    * Closure compiler
+    * d3.js
     * jquery.js
+    * jquery-ui.js
     * underscore.js
     * backbone.js
+    * chosen.js
     * html5slider.js
 
 The script creates a minified version of all javascript files.

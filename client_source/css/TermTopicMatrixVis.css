@@ -1,0 +1,18 @@
+div.TermTopicMatrixCanvas * {
+	position : absolute;
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+div.TermTopicMatrixCanvas div {
+	display: inline-block;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: moz-none;
+	-ms-user-select: none;
+	user-select: none;
+}
+div.TermTopicMatrixCanvas div.label {
+	white-space: nowrap;
+}

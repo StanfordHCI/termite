@@ -9,8 +9,8 @@
 	<script type="text/javascript" src="../client_source/lib/backbone.js"></script>
 	<script type="text/javascript" src="../client_source/js/TermTopicMatrixObject.js"></script>
 	<script type="text/javascript" src="../client_source/js/TermTopicMatrixVis.js"></script>
-	<script type="text/javascript" src="../client_source/js/VisibilityControlPanel.js"></script>
-	<script type="text/javascript" src="../client_source/js/LabelControlPanel.js"></script>
+	<script type="text/javascript" src="OrderingVisibilityControlPanel.js"></script>
+	<script type="text/javascript" src="LabelControlPanel.js"></script>
 	<script type="text/javascript" src="NormalizationControlPanel.js"></script>
 	<link rel="stylesheet" type="text/css" href="demo.css">
 	<script type="text/javascript" src="demo.js"></script>
@@ -20,7 +20,7 @@ function init() {
 	// Create model and visualization
 	model = new TermTopicMatrixObject().on( "all", eventLogger( "model" ) );
 	vis = new TermTopicMatrixVis( { 'model' : model } ).on( "all", eventLogger( "vis" ) );
-	visibility = new VisibilityControlPanel( { 'model' : model, 'vis' : vis } ).on( "all", eventLogger( "control" ) );
+	visibility = new OrderingVisibilityControlPanel( { 'model' : model, 'vis' : vis } ).on( "all", eventLogger( "control" ) );
 	label = new LabelControlPanel( { 'model' : model, 'vis' : vis } ).on( "all", eventLogger( "control" ) );
 	normalization = new NormalizationControlPanel( { 'model' : model, 'vis' : vis } ).on( "all", eventLogger( "control" ) );
 	
@@ -83,7 +83,7 @@ function init() {
 	<div class="container TermTopicMatrixVis"></div><br/><br/>
 	<p>Control Panels</p>
 	<div style="white-space: nowrap">
-		<div class="container VisibilityControlPanel"></div>
+		<div class="container OrderingVisibilityControlPanel"></div>
 		<div class="container LabelControlPanel"></div>
 		<div class="container NormalizationControlPanel"></div>
 	</div><br/>

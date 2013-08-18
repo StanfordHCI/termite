@@ -5,3 +5,12 @@
 /corpus/
 /data/
 /node_modules/
+/client_src/js/lib/
+/client_src/css/font-awesome.css
+/client_src/css/font-awesome-ie7.css
+/client_src/font/
+/client_src/less/
+/client_min/js/
+/client_min/css/
+/client_min/font/
+/client_min/less/

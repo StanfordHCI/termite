@@ -1,22 +1,31 @@
 #!/bin/bash
 
-# Default source and target folders
-SOURCE_PATH=client_source
-TARGET_PATH=client_public
+# Javascript folders (source and minified)
+SOURCE_PATH=client_src
+MINIFIED_PATH=client_min
 
 # Output folders
-LIB_PATH=externals
-TOOL_PATH=tools
-JS_SOURCE_PATH=$SOURCE_PATH/lib
-JS_TARGET_PATH=$TARGET_PATH/lib
-CSS_SOURCE_PATH=$SOURCE_PATH/css
-CSS_TARGET_PATH=$TARGET_PATH/css
+EXTERNALS_PATH=externals
+TOOLS_PATH=tools
+CORPUS_PATH=corpus
+
+# Output subfolders
+SOURCE_JS_PATH=$SOURCE_PATH/js
+SOURCE_JS_LIB_PATH=$SOURCE_PATH/js/lib
+SOURCE_JS_TERMITE_PATH=$SOURCE_PATH/js/termite
+SOURCE_JS_NAVIGATION_PATH=$SOURCE_PATH/js/navigation
+SOURCE_CSS_PATH=$SOURCE_PATH/css
+MINIFIED_JS_PATH=$MINIFIED_PATH/js
+MINIFIED_CSS_PATH=$MINIFIED_PATH/css
 
 # List of javascript files to minify (in subfolder "js")
-JS_MINIFICATION_FILES=(TermTopicMatrixObject TermTopicMatrixVis)
+JS_MINIFICATION_FILES="$SOURCE_JS_TERMITE_PATH/CoreModel.js $SOURCE_JS_TERMITE_PATH/CoreView.js $SOURCE_JS_TERMITE_PATH/MatrixState.js $SOURCE_JS_TERMITE_PATH/MatrixInteractions.js
+$SOURCE_JS_TERMITE_PATH/MatrixModel.js $SOURCE_JS_TERMITE_PATH/MatrixModel_AnnotationControls.js $SOURCE_JS_TERMITE_PATH/MatrixModel_Positions.js $SOURCE_JS_TERMITE_PATH/MatrixModel_Precomputations.js
+$SOURCE_JS_TERMITE_PATH/MatrixModel_SelectionGroups.js $SOURCE_JS_TERMITE_PATH/MatrixModel_Styles.js $SOURCE_JS_TERMITE_PATH/MatrixModel_Values.js $SOURCE_JS_TERMITE_PATH/MatrixModel_Visibilities.js
+$SOURCE_JS_TERMITE_PATH/MatrixSelections.js $SOURCE_JS_TERMITE_PATH/MatrixView.js"
 
 # List of css files to minify (in subfolder "css")
-CSS_MINIFICATION_FILES=(TermTopicMatrixVis)
+CSS_MINIFICATION_FILES="$SOURCE_CSS_PATH/MatrixView.css"
 
 #------------------------------------------------------------------------------#
 
@@ -33,23 +42,38 @@ function __create_folder__ {
 # Mallet (topic modeling library)
 
 function __setup_mallet__ {
-	LIB_SUBPATH=$LIB_PATH/mallet-2.0.7
-	TOOL_SUBPATH=$TOOL_PATH/mallet-2.0.7
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/mallet-2.0.7
+	TOOL_SUBPATH=$TOOLS_PATH/mallet-2.0.7
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 		__create_folder__ $TOOL_SUBPATH
 
 		echo ">> Downloading MALLET (MAchine Learning for LanguagE Toolkit)..."
-		curl --insecure --location http://mallet.cs.umass.edu/dist/mallet-2.0.7.tar.gz > $LIB_SUBPATH/mallet-2.0.7.tar.gz
+		curl --insecure --location http://mallet.cs.umass.edu/dist/mallet-2.0.7.tar.gz > $EXTERNAL_SUBPATH/mallet-2.0.7.tar.gz
 
 		echo ">> Uncompressing MALLET..."
-		tar -zxvf $LIB_SUBPATH/mallet-2.0.7.tar.gz mallet-2.0.7 &&\
+		tar -zxvf $EXTERNAL_SUBPATH/mallet-2.0.7.tar.gz mallet-2.0.7 &&\
 			mv mallet-2.0.7/* $TOOL_SUBPATH &&\
 			rmdir mallet-2.0.7
 
 		echo ">> Extracting MALLET License..."
-		cp $TOOL_SUBPATH/LICENSE $LIB_SUBPATH/LICENSE
+		cp $TOOL_SUBPATH/LICENSE $EXTERNAL_SUBPATH/LICENSE
+	fi
+}
+
+#------------------------------------------------------------------------------#
+# Mallet - Tree Topic model (topic modeling library)
+
+function __setup_tree_tm__ {
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/tree-tm
+	TOOL_SUBPATH=$TOOLS_PATH/tree-tm
+	if [ ! -d "$TOOL_SUBPATH" ]
+	then
+		ln -s ../tree-TM/ $TOOL_SUBPATH
+		__create_folder__ $TOOL_SUBPATH/class
+		echo ">> Compiling TreeTM from source code..."
+		javac -cp $TOOL_SUBPATH/class:$TOOL_SUBPATH/lib/* $TOOL_SUBPATH/src/cc/mallet/topics/*/*.java -d $TOOL_SUBPATH/class
 	fi
 }
 
@@ -57,19 +81,19 @@ function __setup_mallet__ {
 # Stanford Topic Modeling Toolkit
 
 function __setup_stmt__ {
-	LIB_SUBPATH=$LIB_PATH/stmt-0.4.0
-	TOOL_SUBPATH=$TOOL_PATH/stmt-0.4.0
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/stmt-0.4.0
+	TOOL_SUBPATH=$TOOLS_PATH/stmt-0.4.0
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 		__create_folder__ $TOOL_SUBPATH
 
 		echo ">> Downloading STMT (Stanford Topic Modeling Toolkit)..."
-		curl --insecure --location http://nlp.stanford.edu/software/tmt/tmt-0.4/tmt-0.4.0-src.zip > $LIB_SUBPATH/tmt-0.4.0-src.zip
+		curl --insecure --location http://nlp.stanford.edu/software/tmt/tmt-0.4/tmt-0.4.0-src.zip > $EXTERNAL_SUBPATH/tmt-0.4.0-src.zip
 		curl --insecure --location http://nlp.stanford.edu/software/tmt/tmt-0.4/tmt-0.4.0.jar > $TOOL_SUBPATH/tmt-0.4.0.jar
 
 		echo ">> Extracting STMT License..."
-		unzip $LIB_SUBPATH/tmt-0.4.0-src.zip LICENSE -d $LIB_SUBPATH
+		unzip $EXTERNAL_SUBPATH/tmt-0.4.0-src.zip LICENSE -d $EXTERNAL_SUBPATH
 	fi
 }
 
@@ -77,45 +101,22 @@ function __setup_stmt__ {
 # D3 Visualization Javascript Library
 
 function __setup_d3__ {
-	LIB_SUBPATH=$LIB_PATH/d3-v3
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/d3-v3
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 
 		echo ">> Downloading D3 javascript library..."
-		curl --insecure --location http://d3js.org/d3.v3.zip > $LIB_SUBPATH/d3.v3.zip
+		curl --insecure --location http://d3js.org/d3.v3.zip > $EXTERNAL_SUBPATH/d3.v3.zip
 
 		echo ">> Uncompressing D3 javascript library..."
-		unzip $LIB_SUBPATH/d3.v3.zip d3.v3.js -d $JS_SOURCE_PATH &&\
-			mv $JS_SOURCE_PATH/d3.v3.js $JS_SOURCE_PATH/d3.js
-		unzip $LIB_SUBPATH/d3.v3.zip d3.v3.min.js -d $JS_TARGET_PATH &&\
-			mv $JS_TARGET_PATH/d3.v3.min.js $JS_TARGET_PATH/d3.js
+		unzip $EXTERNAL_SUBPATH/d3.v3.zip d3.v3.js -d $SOURCE_JS_LIB_PATH &&\
+			mv $SOURCE_JS_LIB_PATH/d3.v3.js $SOURCE_JS_LIB_PATH/d3.js
+		unzip $EXTERNAL_SUBPATH/d3.v3.zip d3.v3.min.js -d $MINIFIED_JS_PATH &&\
+			mv $MINIFIED_JS_PATH/d3.v3.min.js $MINIFIED_JS_PATH/d3.js
 
 		echo ">> Extracting D3 license..."
-		unzip $LIB_SUBPATH/d3.v3.zip LICENSE -d $LIB_SUBPATH
-	fi
-}
-
-#------------------------------------------------------------------------------#
-# Google closure compiler for Javascript
-
-function __setup_closure__ {
-	LIB_SUBPATH=$LIB_PATH/closure-latest
-	TOOL_SUBPATH=$TOOL_PATH/closure
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
-	then
-		__create_folder__ $LIB_SUBPATH
-		__create_folder__ $TOOL_SUBPATH
-
-		echo ">> Downloading Google Closure Compiler..."
-		curl --insecure --location http://closure-compiler.googlecode.com/files/compiler-latest.zip > $LIB_SUBPATH/compiler-latest.zip
-
-		echo ">> Uncompressing Google Closure Compiler..."
-		unzip $LIB_SUBPATH/compiler-latest.zip compiler.jar -d $TOOL_SUBPATH
-
-		echo ">> Extracting Google Closure Compiler License..."
-		unzip $LIB_SUBPATH/compiler-latest.zip COPYING -d $LIB_SUBPATH &&\
-			mv $LIB_SUBPATH/COPYING $LIB_SUBPATH/LICENSE
+		unzip $EXTERNAL_SUBPATH/d3.v3.zip LICENSE -d $EXTERNAL_SUBPATH
 	fi
 }
 
@@ -123,26 +124,26 @@ function __setup_closure__ {
 # Backbone Javascript Library
 
 function __setup_backbone__ {
-	LIB_SUBPATH=$LIB_PATH/backbone-latest
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/backbone-latest
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 
 		echo ">> Downloading Backbone GitHub archive..."
-		curl --insecure --location http://github.com/documentcloud/backbone/archive/master.zip > $LIB_SUBPATH/backbone.zip
+		curl --insecure --location http://github.com/documentcloud/backbone/archive/master.zip > $EXTERNAL_SUBPATH/backbone.zip
 
 		echo ">> Uncompressing Backbone javascript library..."
-		unzip $LIB_SUBPATH/backbone.zip backbone-master/backbone.js -d $JS_SOURCE_PATH &&\
-			mv $JS_SOURCE_PATH/backbone-master/backbone.js $JS_SOURCE_PATH/backbone.js &&\
-			rmdir $JS_SOURCE_PATH/backbone-master
-		unzip $LIB_SUBPATH/backbone.zip backbone-master/backbone-min.js -d $JS_TARGET_PATH &&\
-			mv $JS_TARGET_PATH/backbone-master/backbone-min.js $JS_TARGET_PATH/backbone.js &&\
-			rmdir $JS_TARGET_PATH/backbone-master
+		unzip $EXTERNAL_SUBPATH/backbone.zip backbone-master/backbone.js -d $SOURCE_JS_LIB_PATH &&\
+			mv $SOURCE_JS_LIB_PATH/backbone-master/backbone.js $SOURCE_JS_LIB_PATH/backbone.js &&\
+			rmdir $SOURCE_JS_LIB_PATH/backbone-master
+		unzip $EXTERNAL_SUBPATH/backbone.zip backbone-master/backbone-min.js -d $MINIFIED_JS_PATH &&\
+			mv $MINIFIED_JS_PATH/backbone-master/backbone-min.js $MINIFIED_JS_PATH/backbone.js &&\
+			rmdir $MINIFIED_JS_PATH/backbone-master
 		
 		echo "Extracting Backbone license..."
-		unzip $LIB_SUBPATH/backbone.zip backbone-master/LICENSE -d $LIB_SUBPATH &&\
-			mv $LIB_SUBPATH/backbone-master/LICENSE $LIB_SUBPATH/LICENSE &&\
-			rmdir $LIB_SUBPATH/backbone-master
+		unzip $EXTERNAL_SUBPATH/backbone.zip backbone-master/LICENSE -d $EXTERNAL_SUBPATH &&\
+			mv $EXTERNAL_SUBPATH/backbone-master/LICENSE $EXTERNAL_SUBPATH/LICENSE &&\
+			rmdir $EXTERNAL_SUBPATH/backbone-master
 	fi
 }
 
@@ -150,26 +151,26 @@ function __setup_backbone__ {
 # Underscore Javascript Library
 
 function __setup_underscore__ {
-	LIB_SUBPATH=$LIB_PATH/underscore-latest
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/underscore-latest
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 
 		echo ">> Downloading Underscore GitHub archive..."
-		curl --insecure --location http://github.com/documentcloud/underscore/archive/master.zip > $LIB_SUBPATH/underscore.zip
+		curl --insecure --location http://github.com/documentcloud/underscore/archive/master.zip > $EXTERNAL_SUBPATH/underscore.zip
 
 		echo ">> Uncompressing Underscore javascript library..."
-		unzip $LIB_SUBPATH/underscore.zip underscore-master/underscore.js -d $JS_SOURCE_PATH &&\
-			mv $JS_SOURCE_PATH/underscore-master/underscore.js $JS_SOURCE_PATH/underscore.js &&\
-			rmdir $JS_SOURCE_PATH/underscore-master
-		unzip $LIB_SUBPATH/underscore.zip underscore-master/underscore-min.js -d $JS_TARGET_PATH &&\
-			mv $JS_TARGET_PATH/underscore-master/underscore-min.js $JS_TARGET_PATH/underscore.js &&\
-			rmdir $JS_TARGET_PATH/underscore-master
+		unzip $EXTERNAL_SUBPATH/underscore.zip underscore-master/underscore.js -d $SOURCE_JS_LIB_PATH &&\
+			mv $SOURCE_JS_LIB_PATH/underscore-master/underscore.js $SOURCE_JS_LIB_PATH/underscore.js &&\
+			rmdir $SOURCE_JS_LIB_PATH/underscore-master
+		unzip $EXTERNAL_SUBPATH/underscore.zip underscore-master/underscore-min.js -d $MINIFIED_JS_PATH &&\
+			mv $MINIFIED_JS_PATH/underscore-master/underscore-min.js $MINIFIED_JS_PATH/underscore.js &&\
+			rmdir $MINIFIED_JS_PATH/underscore-master
 
 		echo ">> Extracting Underscore license..."
-		unzip $LIB_SUBPATH/underscore.zip underscore-master/LICENSE -d $LIB_SUBPATH &&\
-			mv $LIB_SUBPATH/underscore-master/LICENSE $LIB_SUBPATH/LICENSE &&\
-			rmdir $LIB_SUBPATH/underscore-master
+		unzip $EXTERNAL_SUBPATH/underscore.zip underscore-master/LICENSE -d $EXTERNAL_SUBPATH &&\
+			mv $EXTERNAL_SUBPATH/underscore-master/LICENSE $EXTERNAL_SUBPATH/LICENSE &&\
+			rmdir $EXTERNAL_SUBPATH/underscore-master
 	fi
 }
 
@@ -177,45 +178,22 @@ function __setup_underscore__ {
 # jQuery Javascript Library
 
 function __setup_jquery__ {
-	LIB_SUBPATH=$LIB_PATH/jquery-1.9.1
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/jquery-1.9.1
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 
 		echo ">> Downloading jQuery javascript library..."
-		curl --insecure --location http://code.jquery.com/jquery-1.9.1.js > $JS_SOURCE_PATH/jquery.js
-		curl --insecure --location http://code.jquery.com/jquery-1.9.1.min.js > $JS_TARGET_PATH/jquery.js
+		curl --insecure --location http://code.jquery.com/jquery-1.9.1.js > $SOURCE_JS_LIB_PATH/jquery.js
+		curl --insecure --location http://code.jquery.com/jquery-1.9.1.min.js > $MINIFIED_JS_PATH/jquery.js
 
 		echo ">> Downloading jQuery GitHub archive..."
-		curl --insecure --location http://github.com/jquery/jquery/archive/master.zip > $LIB_SUBPATH/jquery.zip
+		curl --insecure --location http://github.com/jquery/jquery/archive/master.zip > $EXTERNAL_SUBPATH/jquery.zip
 
 		echo ">> Extracting jQuery license..."
-		unzip $LIB_SUBPATH/jquery.zip jquery-master/MIT-LICENSE.txt -d $LIB_SUBPATH &&\
-			mv $LIB_SUBPATH/jquery-master/MIT-LICENSE.txt $LIB_SUBPATH/LICENSE &&\
-			rmdir $LIB_SUBPATH/jquery-master
-	fi
-}
-
-#------------------------------------------------------------------------------#
-# jQuery UI Javascript Library
-
-function __setup_jquery_ui__ {
-	LIB_SUBPATH=$LIB_PATH/jquery-ui-1.10.3
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
-	then
-		__create_folder__ $LIB_SUBPATH
-
-		echo ">> Downloading jQuery UI javascript library..."
-		curl --insecure --location http://code.jquery.com/ui/1.10.3/jquery-ui.js > $JS_SOURCE_PATH/jquery-ui.js
-		curl --insecure --location http://code.jquery.com/ui/1.10.3/jquery-ui.min.js > $JS_TARGET_PATH/jquery-ui.js
-
-		echo ">> Downloading jQuery UI GitHub archive..."
-		curl --insecure --location http://github.com/jquery/jquery-ui/archive/master.zip > $LIB_SUBPATH/jquery-ui.zip
-
-		echo ">> Extracting jQuery UI license..."
-		unzip $LIB_SUBPATH/jquery-ui.zip jquery-ui-master/MIT-LICENSE.txt -d $LIB_SUBPATH &&\
-			mv $LIB_SUBPATH/jquery-ui-master/MIT-LICENSE.txt $LIB_SUBPATH/LICENSE &&\
-			rmdir $LIB_SUBPATH/jquery-ui-master
+		unzip $EXTERNAL_SUBPATH/jquery.zip jquery-master/MIT-LICENSE.txt -d $EXTERNAL_SUBPATH &&\
+			mv $EXTERNAL_SUBPATH/jquery-master/MIT-LICENSE.txt $EXTERNAL_SUBPATH/LICENSE &&\
+			rmdir $EXTERNAL_SUBPATH/jquery-master
 	fi
 }
 
@@ -223,58 +201,112 @@ function __setup_jquery_ui__ {
 # Chosen Javascript Library
 
 function __setup_chosen__ {
-	LIB_SUBPATH=$LIB_PATH/chosen-0.11.1
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/chosen-0.11.1
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 
 		echo ">> Downloading Chosen GitHub archive..."
-		curl --insecure --location http://chosen.getharvest.com.s3.amazonaws.com/chosen_v0.11.1.zip > $LIB_SUBPATH/chosen_v0.11.1.zip
-		curl --insecure --location http://github.com/harvesthq/chosen/archive/master.zip > $LIB_SUBPATH/chosen-github.zip
+		curl --insecure --location http://chosen.getharvest.com.s3.amazonaws.com/chosen_v0.11.1.zip > $EXTERNAL_SUBPATH/chosen_v0.11.1.zip
+		curl --insecure --location http://github.com/harvesthq/chosen/archive/master.zip > $EXTERNAL_SUBPATH/chosen-github.zip
 	
 		echo ">> Uncompressing Chosen javascript library..."
-		unzip $LIB_SUBPATH/chosen_v0.11.1.zip chosen.jquery.js -d $JS_SOURCE_PATH
-		unzip $LIB_SUBPATH/chosen_v0.11.1.zip chosen.jquery.min.js -d $JS_TARGET_PATH &&\
-			mv $JS_TARGET_PATH/chosen.jquery.min.js $JS_TARGET_PATH/chosen.jquery.js
+		unzip $EXTERNAL_SUBPATH/chosen_v0.11.1.zip chosen.jquery.js -d $SOURCE_JS_LIB_PATH
+		unzip $EXTERNAL_SUBPATH/chosen_v0.11.1.zip chosen.jquery.min.js -d $MINIFIED_JS_PATH &&\
+			mv $MINIFIED_JS_PATH/chosen.jquery.min.js $MINIFIED_JS_PATH/chosen.jquery.js
 	
 		echo ">> Uncompressing Chosen CSS resources..."
-		unzip $LIB_SUBPATH/chosen_v0.11.1.zip chosen.css -d $CSS_SOURCE_PATH
-		unzip $LIB_SUBPATH/chosen_v0.11.1.zip chosen.min.css -d $CSS_TARGET_PATH &&\
-			mv $CSS_TARGET_PATH/chosen.min.css $CSS_TARGET_PATH/chosen.css
-		unzip $LIB_SUBPATH/chosen_v0.11.1.zip chosen-sprite.png -d $CSS_SOURCE_PATH
-		unzip $LIB_SUBPATH/chosen_v0.11.1.zip chosen-sprite.png -d $CSS_TARGET_PATH
+		unzip $EXTERNAL_SUBPATH/chosen_v0.11.1.zip chosen.css -d $SOURCE_CSS_PATH
+		unzip $EXTERNAL_SUBPATH/chosen_v0.11.1.zip chosen.min.css -d $MINIFIED_CSS_PATH &&\
+			mv $MINIFIED_CSS_PATH/chosen.min.css $MINIFIED_CSS_PATH/chosen.css
+		unzip $EXTERNAL_SUBPATH/chosen_v0.11.1.zip chosen-sprite.png -d $SOURCE_CSS_PATH
+		unzip $EXTERNAL_SUBPATH/chosen_v0.11.1.zip chosen-sprite.png -d $MINIFIED_CSS_PATH
 	
 		echo ">> Extracting Chosen license..."
-		unzip $LIB_SUBPATH/chosen-github.zip chosen-master/LICENSE.md -d $LIB_SUBPATH &&\
-			mv $LIB_SUBPATH/chosen-master/LICENSE.md $LIB_SUBPATH/LICENSE &&\
-			rmdir $LIB_SUBPATH/chosen-master
+		unzip $EXTERNAL_SUBPATH/chosen-github.zip chosen-master/LICENSE.md -d $EXTERNAL_SUBPATH &&\
+			mv $EXTERNAL_SUBPATH/chosen-master/LICENSE.md $EXTERNAL_SUBPATH/LICENSE &&\
+			rmdir $EXTERNAL_SUBPATH/chosen-master
 	fi
 }
 
 #------------------------------------------------------------------------------#
-# Slider for Firefox
+# Font Awesome Library
 
-function __setup_slider__ {
-	LIB_SUBPATH=$LIB_PATH/html5slider
-	if [ ! -f "$LIB_SUBPATH/LICENSE" ]
+function __setup_font_awesome__ {
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/font-awesome-latest
+	if [ ! -d "$EXTERNAL_SUBPATH" ]
 	then
-		__create_folder__ $LIB_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
 
-		echo ">> Downloading html5slider GitHub archive..."
-		curl --insecure --location http://github.com/fryn/html5slider/archive/master.zip > $LIB_SUBPATH/html5slider.zip
-
-		echo ">> Uncompressing html5slider.js..."
-		unzip $LIB_SUBPATH/html5slider.zip html5slider-master/html5slider.js -d $JS_SOURCE_PATH &&\
-			mv $JS_SOURCE_PATH/html5slider-master/html5slider.js $JS_SOURCE_PATH/html5slider.js &&\
-			rmdir $JS_SOURCE_PATH/html5slider-master
-
-		echo ">> Minifying html5slider.js..."
-		java -jar $TOOL_PATH/closure/compiler.jar --warning_level QUIET --js=$JS_SOURCE_PATH/html5slider.js --js_output_file=$JS_TARGET_PATH/html5slider.js
-		
-		echo ">> Downloading the MIT License..."
-		curl --insecure --location http://opensource.org/licenses/MIT > $LIB_SUBPATH/LICENSE
+		echo ">> Downloading Font Awesome..."
+		curl --insecure --location http://fortawesome.github.io/Font-Awesome/assets/font-awesome.zip > $EXTERNAL_SUBPATH/font-awesome.zip
+	
+		echo ">> Uncompressing Font Awesome library..."
+		unzip $EXTERNAL_SUBPATH/font-awesome.zip -d $EXTERNAL_SUBPATH
+	
+		echo ">> Moving Font Awesome resources..."
+		mv $EXTERNAL_SUBPATH/font-awesome/css/font-awesome.css $SOURCE_CSS_PATH
+		mv $EXTERNAL_SUBPATH/font-awesome/css/font-awesome-ie7.css $SOURCE_CSS_PATH
+		mv $EXTERNAL_SUBPATH/font-awesome/css/font-awesome.min.css $MINIFIED_CSS_PATH/font-awesome.css
+		mv $EXTERNAL_SUBPATH/font-awesome/css/font-awesome-ie7.min.css $MINIFIED_CSS_PATH/font-awesome-ie7.css
+		cp -R $EXTERNAL_SUBPATH/font-awesome/less $SOURCE_PATH
+		cp -R $EXTERNAL_SUBPATH/font-awesome/font $SOURCE_PATH
+		cp -R $EXTERNAL_SUBPATH/font-awesome/less $MINIFIED_PATH
+		cp -R $EXTERNAL_SUBPATH/font-awesome/font $MINIFIED_PATH
+		rm -rf $EXTERNAL_SUBPATH/font-awesome
 	fi
 }
+
+#------------------------------------------------------------------------------#
+# Google closure compiler for Javascript
+
+function __setup_closure__ {
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/closure-latest
+	TOOL_SUBPATH=$TOOLS_PATH/closure
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
+	then
+		__create_folder__ $EXTERNAL_SUBPATH
+		__create_folder__ $TOOL_SUBPATH
+
+		echo ">> Downloading Google Closure Compiler..."
+		curl --insecure --location http://closure-compiler.googlecode.com/files/compiler-latest.zip > $EXTERNAL_SUBPATH/compiler-latest.zip
+
+		echo ">> Uncompressing Google Closure Compiler..."
+		unzip $EXTERNAL_SUBPATH/compiler-latest.zip compiler.jar -d $TOOL_SUBPATH
+
+		echo ">> Extracting Google Closure Compiler License..."
+		unzip $EXTERNAL_SUBPATH/compiler-latest.zip COPYING -d $EXTERNAL_SUBPATH &&\
+			mv $EXTERNAL_SUBPATH/COPYING $EXTERNAL_SUBPATH/LICENSE
+	fi
+}
+
+#------------------------------------------------------------------------------#
+# YUI minification for CSS
+
+function __setup_yui__ {
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/yui-2.4.7
+	TOOL_SUBPATH=$TOOLS_PATH/yui-2.4.7
+	if [ ! -f "$EXTERNAL_SUBPATH/LICENSE" ]
+	then
+		__create_folder__ $EXTERNAL_SUBPATH
+		__create_folder__ $TOOL_SUBPATH
+
+		echo ">> Downloading YUI Compressor 2.4.7..."
+		curl --insecure --location https://github.com/downloads/yui/yuicompressor/yuicompressor-2.4.7.zip > $EXTERNAL_SUBPATH/yuicompressor-2.4.7.zip
+		
+		echo ">> Uncompressing YUI Compressor 2.4.7..."
+		unzip $EXTERNAL_SUBPATH/yuicompressor-2.4.7.zip yuicompressor-2.4.7/build/yuicompressor-2.4.7.jar -d $TOOL_SUBPATH &&\
+			mv $TOOL_SUBPATH/yuicompressor-2.4.7/build/yuicompressor-2.4.7.jar $TOOL_SUBPATH/yuicompressor-2.4.7.jar &&\
+			rmdir $TOOL_SUBPATH/yuicompressor-2.4.7/build &&\
+			rmdir $TOOL_SUBPATH/yuicompressor-2.4.7 &&\
+
+		echo ">> Extracting YUI Compressor License..."
+		unzip $EXTERNAL_SUBPATH/yuicompressor-2.4.7.zip yuicompressor-2.4.7/LICENSE.TXT -d $EXTERNAL_SUBPATH &&\
+			mv $EXTERNAL_SUBPATH/yuicompressor-2.4.7/LICENSE.TXT $EXTERNAL_SUBPATH/LICENSE &&\
+			rmdir $EXTERNAL_SUBPATH/yuicompressor-2.4.7
+	fi
+}
+
 
 #------------------------------------------------------------------------------#
 # Main setup script
@@ -284,23 +316,23 @@ function __run_setup__ {
 	echo
 
 	# Common folders
-	__create_folder__ $LIB_PATH
-	__create_folder__ $TOOL_PATH
-	__create_folder__ $TARGET_PATH
-	__create_folder__ $JS_TARGET_PATH
-	__create_folder__ $CSS_TARGET_PATH
+	__create_folder__ $EXTERNALS_PATH
+	__create_folder__ $TOOLS_PATH
+	__create_folder__ $MINIFIED_PATH
+	__create_folder__ $MINIFIED_JS_PATH
+	__create_folder__ $MINIFIED_CSS_PATH
 
 	# Google closure compiler for Javascript
 	__setup_closure__
+	
+	# YUI Compressor for CSS
+	__setup_yui__
 
 	# D3 Visualization Javascript Library
 	__setup_d3__
 
 	# jQuery Javascript Library
 	__setup_jquery__
-
-	# jQuery UI Javascript Library
-	__setup_jquery_ui__
 
 	# Underscore Javascript Library
 	__setup_underscore__
@@ -309,16 +341,19 @@ function __run_setup__ {
 	__setup_backbone__
 
 	# Chosen Javascript Library
-	__setup_chosen__
+#	__setup_chosen__
 
-	# Slider for Firefox
-	__setup_slider__
+	# Font Awesome Library
+	__setup_font_awesome__
 
 	# Stanford Topic Modeling Toolkit
 	__setup_stmt__
 
 	# Mallet (topic modeling library)
 	__setup_mallet__
+	
+	# Compile tree-TM
+#	__setup_tree_tm__
 
 	# Minify javascript and css files
 	__minify_js__
@@ -331,23 +366,38 @@ function __run_setup__ {
 # Minify JS and CSS files
 
 function __minify_js__ {
-	__create_folder__ $TARGET_PATH/js
+	__create_folder__ $MINIFIED_PATH/js
 	echo ">> Minifying javascript files..."
-	for JS_FILE in ${JS_MINIFICATION_FILES[@]}
-	do
-		echo "    Minifying $JS_FILE.js"
-		java -jar $TOOL_PATH/closure/compiler.jar --js=$SOURCE_PATH/js/$JS_FILE.js --js_output_file=$TARGET_PATH/js/$JS_FILE.js
-	done
+	java -jar $TOOLS_PATH/closure/compiler.jar --js $JS_MINIFICATION_FILES --js_output_file $MINIFIED_PATH/js/termite.js
+#	java -jar $TOOLS_PATH/closure/compiler.jar --js `ls $SOURCE_PATH/js/*.js | awk '{ ORS=" "; print; }'` --js_output_file $MINIFIED_PATH/js/Termite.js
 }
 
 function __minify_css__ {
-	__create_folder__ $TARGET_PATH/css
+	__create_folder__ $MINIFIED_PATH/css
 	echo ">> Minifying cascade stylesheet files..."
-	for CSS_FILE in ${CSS_MINIFICATION_FILES[@]}
-	do
-		echo "    Copying $CSS_FILE.css"
-		cp $SOURCE_PATH/css/$CSS_FILE.css $TARGET_PATH/css/$CSS_FILE.css
-	done
+	java -jar $TOOLS_PATH/yui-2.4.7/yuicompressor-2.4.7.jar -o $MINIFIED_PATH/css/termite.css $CSS_MINIFICATION_FILES
+}
+
+#------------------------------------------------------------------------------#
+
+function __download_data__ {
+	EXTERNAL_SUBPATH=$EXTERNALS_PATH/20newsgroups
+	DATA_SUBPATH=$CORPUS_PATH/20newsgroups
+	if [ ! -d "$DATA_SUBPATH" ]
+	then
+		__create_folder__ $CORPUS_PATH
+		__create_folder__ $DATA_SUBPATH
+		__create_folder__ $EXTERNAL_SUBPATH
+
+		echo ">> Downloading the 20 newsgroup dataset..."
+		curl --insecure --location http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz > $EXTERNAL_SUBPATH/20news-18828.tar.gz
+		
+		echo ">> Uncompressing the 20 newsgroup dataset..."
+		tar -zxvf $EXTERNAL_SUBPATH/20news-18828.tar.gz 20news-18828 &&\
+			mv 20news-18828/* $DATA_SUBPATH &&\
+			rmdir 20news-18828
+	fi
+	
 }
 
 #------------------------------------------------------------------------------#
@@ -363,7 +413,7 @@ function __generate_documentations__ {
 	fi
 
 	echo "Generating documentations in '$OUTPUT/'..."
-	$JSDOC client_source/js --destination $OUTPUT
+	$JSDOC client_src/js/termite --destination $OUTPUT
 	echo "Generated documentations."
 }
 
@@ -404,6 +454,7 @@ function __generate_tests__ {
 #------------------------------------------------------------------------------#
 
 RUN_TOOLS=0
+RUN_DATA=0
 RUN_DOCS=0
 RUN_TESTS=0
 RUN_HELP=0
@@ -424,6 +475,9 @@ do
 	elif [ "$ARG" = "tools" ]
 	then
 		RUN_TOOLS=1
+	elif [ "$ARG" = "data" ]
+	then
+		RUN_DATA=1
 	elif [ "$ARG" = "docs" ]
 	then
 		RUN_DOCS=1
@@ -438,7 +492,7 @@ done
 
 if [ $RUN_HELP -eq 1 ]
 then
-	echo "Usage: `basename $0` [-h|--help] [tools] [docs] [tests]"
+	echo "Usage: `basename $0` [-h|--help] [tools] [data] [docs] [tests]"
 	echo
 	
 	if [ ! -z $UNKNOWN_OPTION ]
@@ -450,18 +504,17 @@ then
 		echo "    Download external tools used by Termite."
 		echo "    Perform one-time setups including javascript minification."
 		echo
-		echo "  minify_only:"
-		echo "    Perform javascript minification only; for development purposes."
+		echo "  data:"
+		echo "    Download the 20 Newsgroups dataset."
 		echo
-		echo "  docs:"
+		echo "  docs (require npm; not officially supported):"
 		echo "    Download JSDoc."
 		echo "    Generate JSDoc documntation."
-		echo "    (require npm; not officially supported)"
 		echo
-		echo "  tests:"
+		echo "  tests (require npm; not officially supported):"
 		echo "    Download Mocha and other utilities required by the test cases."
 		echo "    Execuate all Mocha test cases."
-		echo "    (require npm; not officially supported)"
+		echo
 		exit 0
 	fi
 else
@@ -469,6 +522,10 @@ else
 	then
 		__run_setup__
 		exit 0
+	fi
+	if [ $RUN_DATA -eq 1 ]
+	then
+		__download_data__
 	fi
 	if [ $RUN_DOCS -eq 1 ]
 	then

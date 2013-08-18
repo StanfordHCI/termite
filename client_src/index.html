@@ -1,0 +1,130 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Termite | Topic Modeling Visualization</title>
+	
+	<link rel="stylesheet" type="text/css" href="css/MatrixView.css">
+	<link rel="stylesheet" type="text/css" href="css/NavigationView.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+	<script type="text/javascript" src="js/lib/d3.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.js"></script>
+	<script type="text/javascript" src="js/lib/underscore.js"></script>
+	<script type="text/javascript" src="js/lib/backbone.js"></script>
+	<script type="text/javascript" src="js/termite/CoreModel.js"></script>
+	<script type="text/javascript" src="js/termite/CoreView.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixState.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_Precomputations.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_Visibilities.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_Styles.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_Values.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_Positions.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_AnnotationControls.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixModel_SelectionGroups.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixInteractions.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixView.js"></script>
+	<script type="text/javascript" src="js/termite/MatrixSelections.js"></script>
+	<script type="text/javascript" src="js/navigation/NavigationState.js"></script>
+	<script type="text/javascript" src="js/navigation/NavigationModel.js"></script>
+	<script type="text/javascript" src="js/navigation/NavigationView.js"></script>
+	
+<style type="text/css">
+body, div, p {
+	border: 0;
+	padding: 0;
+	margin: 0
+}
+body {
+	padding: 10px;
+	font-family: Gill Sans;
+	font-size: 10pt;
+	color: #666;
+}
+div.container {
+	display: inline-block;
+	vertical-align: top;
+	margin: 10px;
+	padding: 10px;
+	border: 1px solid #999;
+	box-shadow: 2px 2px 15px #ccc;
+	background: #eee;
+}
+div.event {
+	margin: 0 5px 2px 5px;
+	color: #666;
+}
+a {
+	color: #666;
+	text-decoration: none;
+}
+a:hover {
+	color: 000;
+	text-decoration: underline;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+	var defaultDataID = "infovis18";
+//	var defaultDataID = "20newsgroups";
+	var defaultEntryID = 0;
+	
+	matrixState = new MatrixState();
+	matrixModel = new MatrixModel({ "state" : matrixState });
+	matrixView = new MatrixView({ "model" : matrixModel });
+	
+	var onChangeEntryID = function() {
+		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;
+		var entryID = d3.selectAll( "select.entryIDs" )[0][0].value;
+		d3.json( "model/getEntry.py?data="+dataID+"&i="+entryID, function( results ) {
+			var rowDims = results.terms.length;
+			var columnDims = results.topics.length;
+			matrixState.importEntries( "entry" + entryID, results.entries, rowDims, columnDims )
+				.allRowLabels( results.terms )
+				.allColumnLabels( results.topics )
+				.setParameters( results.states );
+			
+		});
+	};
+
+	var onChangeDataID = function() {
+		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;
+		d3.json( "model/listEntries.py?data="+dataID, function( results ) {
+			var entryIDs = results.entryIDs;
+			var element = d3.selectAll( "select.entryIDs" );
+			element.selectAll("*").remove();
+			element.selectAll("option").data( entryIDs ).enter()
+				.append( "option" )
+				.attr( "selected", function(d) { return d === defaultEntryID ? "selected" : null })
+				.attr( "value", function(d) { return d } )
+				.text( function(d) { return "LDA Topic Model" } );
+			onChangeEntryID();
+		});
+	};
+	
+	d3.json( "model/listDatasets.py", function( results ) {
+		var dataIDs = results.dataIDs;
+		var element = d3.selectAll( "select.dataIDs" );
+		element.on( "change", onChangeDataID );
+		element.selectAll("*").remove();
+		element.selectAll( "option" ).data( dataIDs ).enter()
+				.append( "option" )
+				.attr( "selected", function(d) { return d === defaultDataID ? "selected" : null })
+				.attr( "value", function(d) { return d } )
+				.text( function(d) { return d } );
+		onChangeDataID();	
+	});
+});
+</script>
+</head>
+<body>
+	<div class="container">
+		<select class="dataIDs"></select>
+		<select class="entryIDs"></select>
+	</div><br/>
+	<div class="container MatrixView"></div><br/>
+	<p><a href="http://jason.chuang.ca" target="_blank">Jason Chuang</a>, 
+		<a href="http://vis.stanford.edu" target="_blank">Vis</a> &amp; 
+		<a href="http://nlp.stanford.edu" target="_blank">NLP</a>, 
+		<a href="http://cs.stanford.edu" target="_blank">Stanford University</a>, 2013</p>
+</body>
+</html>

@@ -1,8 +1,6 @@
-README for Termite, a topic model visualization tool.
-
----------------
+--------------------------------------------------------------------------------
   INFORMATION
----------------
+--------------------------------------------------------------------------------
 Termite is a visualization tool for inspecting the output of statistical
 topic models based on the techniques described in the following publication:
 
@@ -15,11 +13,11 @@ This tool is developed by:
     * Jason Chuang <jcchuang@cs.stanford.edu>
     * Ashley Jin <ashpjin@cs.stanford.edu>
 
-and is distributed under the BSD-3 license.
+This software is distributed under the BSD-3 license.
 
------------
+--------------------------------------------------------------------------------
   LICENSE
------------
+--------------------------------------------------------------------------------
 Copyright (c) 2013, Leland Stanford Junior University
 All rights reserved.
 
@@ -45,9 +43,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-----------------------
+--------------------------------------------------------------------------------
   ADDITIONAL CREDITS
-----------------------
+--------------------------------------------------------------------------------
+
 Termite requires the use of the following libraries and tools.
 We thank their respective authors for developing and distributing these tools.
 
@@ -66,45 +65,56 @@ D3 javascript visualization library
     Developed by Mike Bostock, et al.
     Distributed under a BSD license: externals/d3-v3/LICENSE
 
+Backbone
+    Project website: http://backbonejs.org
+    Developed by Jeremy Ashkenas, DocumentCloud Inc.
+    Distributed under an MIT license: externals/backbone-latest/LICENSE
+
+Underscore
+    Project website: http://underscorejs.org
+    Developed by Jeremy Ashkenas, DocumentCloud Inc.
+    Distributed under an MIT license: externals/underscore-latest/LICENSE
+
+jQuery
+    Project website: http://jquery.com
+    Developed by the jQuery Foundation
+    Distributed under an MIT license: externals/jquery-1.9.1/LICENSE
+
+Font Awesome
+    Project website: http://fontawesome.io
+    Developed by Dave Gandy
+    Font distributed under an SIL OFL 1.1 license: http://scripts.sil.org/OFL
+    CSS and LESS files distributed under an MIT license: http://opensource.org/licenses/mit-license.html
+    
 Google closure javascript compiler
     Project website: https://developers.google.com/closure/compiler/
     Developed by Google engineers
     Distributed under an Apache license: externals/closure-latest/LICENSE
 
-Backbone
-    Project website: http://backbonejs.org
-    Developed by Jeremy Ashkenas, DocumentCloud Inc.
-    Distributed under a MIT license: externals/backbone-latest/LICENSE
-
-Underscore
-    Project website: http://underscorejs.org
-    Developed by Jeremy Ashkenas, DocumentCloud Inc.
-    Distributed under a MIT license: externals/underscore-latest/LICENSE
-
-jQuery
-    Project website: http://jquery.com
-    Developed by the jQuery Foundation
-    Distributed under a MIT license: externals/jquery-1.9.1/LICENSE
-
-jQuery UI
-    Project website: http://jqueryui.com/
-    Developed by the jQuery UI Team
-    Distributed under a MIT license: externals/jquery-ui-1.10.3/LICENSE
-
-Chosen
-	Project website: http://harvesthq.github.io/chosen/
-	Developed by Patrick Filler
-	Distributed under a MIT license: externals/chosen-0.11.1/LICENSE
-
-html5slider
-    Project website: https://github.com/fryn/html5slider
-    Developed by Frank Yan
-    Distributed under an MIT license: http://opensource.org/licenses/MIT
+YUI Compressor
+    Project website: http://yui.github.io/yuicompressor/
+    Developed by Yahoo! Inc.
+    Distributed under a BSD license: externals/yui-2.4.7/LICENSE
 
 JSDoc3
-	Project website: http://usejsdoc.org/
-	Developed by the JSDoc 3 documentation project
-	Distributed under the Creative Commons Attribution-ShareAlike 3.0 Unported License: http://creativecommons.org/licenses/by-sa/3.0/
+    Project website: http://usejsdoc.org/
+    Developed by the JSDoc 3 documentation project
+    Distributed under an Apache license: http://usejsdoc.org/about-license-jsdoc3.html
+
+Mocha
+    Project website: http://visionmedia.github.io/mocha/
+    Developed by T. J. Holowaychuk
+    Distributed under an MIT license: https://github.com/visionmedia/mocha/blob/master/LICENSE
+
+Chai
+    Project website: http://chaijs.com/
+    Developed by Jake Luer
+    Distributed under an MIT license: https://github.com/chaijs/chai/blob/master/README.md
+
+Require
+    Project website: http://requirejs.org/
+    Developed by the Dojo Foundation
+    Distributed under a BSD or MIT license: https://github.com/jrburke/requirejs/blob/master/LICENSE
 
 ------------------
   ONE-TIME SETUP
@@ -118,13 +128,11 @@ Libraries fetched include:
     * MALLET
     * STMT
     * Closure compiler
+    * YUI compressor
     * d3.js
     * jquery.js
-    * jquery-ui.js
     * underscore.js
     * backbone.js
-    * chosen.js
-    * html5slider.js
 
 The script creates a minified version of all javascript files.
 
@@ -135,48 +143,23 @@ Building a topic model in Termite requires running a single python script. The s
 in an input text corpus, and produces an output folder whose content can be inspected 
 using a web browser, described in the next section.
 
-Customize configuration file with the following information. A sample configuration
-file can be found in 'example.cfg'
-    [Corpus]       path to text corpus
-    [TopicModel]   directory for holding topic model outputs
-    [TopicModel]   number of topics to train
-    [TopicModel]   topic model (either mallet or stmt)
-    [Termite]      number of terms to seriate
-    [Termite]      path to save Termite-internal working files
-    
-Process the text corpus, and build a topic model by running the execution script.
+To process a text corpus, and build a topic model by running one of the following scripts.
 Execution time will vary depending on the size of the corpus.
-    >> ./execute.py <your_config_file.cfg>
-
-The execution script calls in order: 
-    1. pipeline/tokenize.py                  Tokenize the text corpus
-    2. pipeline/train_mallet.py              Train a topic model using MALLET
-       pipeline/train_stmt.py                or STMT.
-    3. pipeline/compute_saliency.py          Compute term saliency
-    4. pipeline/compute_similarity.py        Compute term similarity
-    5. pipeline/compute_seriation.py:        Seriates terms
-    6. pipeline/prepare_data_for_client.py:  Generates datafiles for client
-    7. pipeline/prepare_vis_for_client.py:   Copies necessary scripts for client
+    >> src/import_file.sh
+    >> src/import_folder.sh
 
 ---------------------------- 
   VIEW TOPIC MODEL OUTPUTS
 ----------------------------
 You are now ready to visualize the topic model outputs! Termite's output can be viewed in
 a web browser. To view the files locally (on your own computer), you need to set up a local
-web server. Alternatively, you may copy the output folder to a web server to publish the results.
+web server.
 
-Termite outputs are stored in the 'public_html' subfolder within the output directory.
+Start a local server by running
+    >> ./web.sh
 
-To set up a local webserver:
-    1. Change into output directory (specified in the configuration file)
-       >> cd <output_folder>/public_html
-    2. Start a local server using python
-       >> ./web.sh
-    3. Open http://localhost:8888 in a modern web browser (Chrome, Safari, Firefox, or Opera)
-       to view a visualization of the model outputs.
-
-To publish the results on a webserver:
-    1. Copy public_html directory to your remote server.
+Open http://localhost:8888/client_src in a modern web browser (Chrome, Safari, Firefox, or Opera)
+to view a visualization of the model outputs.
 
 -----------------------------
   TOPIC MODEL VISUALIZATION
@@ -188,15 +171,12 @@ controls are explained in more detail in the 'VISUALIZATION USE CASES' section.
 When the mouse is placed over terms, topics, circles, or bars in the matrix or frequency 
 bar view, the associated term, topic, bar, and circles will be highlighted in both views.
 
----------------------------
-  VISUALIZATION USE CASES
----------------------------
-The Termite visualization tool has a set of user controls in the top right section of the
-webpage. The user may specify
-    * the number of terms with highest affinity to show
-    * the number of terms with highest saliency to show
-    * always display specific terms
-    * always display 20 most frequent terms belonging to selected topics
-    * click on a topic to select/color the topic
-    * mouse over a topic/term to highlight the topic/term
-(Note: the highest affinity term set and highest saliency term set may contain overlapping words)
+-------------------
+  EXAMPLE DATASET
+-------------------
+To download the "20 newsgroup" example dataset, execute the following command
+    >> ./setup.sh data
+
+And then execute the following script
+    >> src/import_folder.sh corpus/20newsgroups 20newsgroups
+

@@ -47,14 +47,13 @@ a:hover {
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
-	var defaultDataID = "infovis18";
-//	var defaultDataID = "20newsgroups";
+	var defaultDataID = "20newsgroups";
 	var defaultEntryID = 0;
-
+	
 	matrixState = new MatrixState();
 	matrixModel = new MatrixModel({ "state" : matrixState });
 	matrixView = new MatrixView({ "model" : matrixModel });
-
+	
 	var onChangeEntryID = function() {
 		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;
 		var entryID = d3.selectAll( "select.entryIDs" )[0][0].value;
@@ -65,7 +64,7 @@ $(document).ready(function() {
 				.allRowLabels( results.terms )
 				.allColumnLabels( results.topics )
 				.setParameters( results.states );
-
+			
 		});
 	};
 
@@ -80,10 +79,11 @@ $(document).ready(function() {
 				.attr( "selected", function(d) { return d === defaultEntryID ? "selected" : null })
 				.attr( "value", function(d) { return d } )
 				.text( function(d) { return "LDA Topic Model" } );
-			onChangeEntryID();
+			if ( entryIDs !== null && entryIDs.length > 0 )
+				onChangeEntryID();
 		});
 	};
-
+	
 	d3.json( "model/listDatasets.py", function( results ) {
 		var dataIDs = results.dataIDs;
 		var element = d3.selectAll( "select.dataIDs" );
@@ -94,7 +94,8 @@ $(document).ready(function() {
 				.attr( "selected", function(d) { return d === defaultDataID ? "selected" : null })
 				.attr( "value", function(d) { return d } )
 				.text( function(d) { return d } );
-		onChangeDataID();	
+		if ( dataIDs !== null && dataIDs.length > 0 )
+			onChangeDataID();
 	});
 });
 </script>

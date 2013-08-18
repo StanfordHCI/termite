@@ -64,8 +64,7 @@ a:hover {
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
-	var defaultDataID = "infovis18";
-//	var defaultDataID = "20newsgroups";
+	var defaultDataID = "20newsgroups";
 	var defaultEntryID = 0;
 	
 	matrixState = new MatrixState();
@@ -97,7 +96,8 @@ $(document).ready(function() {
 				.attr( "selected", function(d) { return d === defaultEntryID ? "selected" : null })
 				.attr( "value", function(d) { return d } )
 				.text( function(d) { return "LDA Topic Model" } );
-			onChangeEntryID();
+			if ( entryIDs !== null && entryIDs.length > 0 )
+				onChangeEntryID();
 		});
 	};
 	
@@ -111,7 +111,8 @@ $(document).ready(function() {
 				.attr( "selected", function(d) { return d === defaultDataID ? "selected" : null })
 				.attr( "value", function(d) { return d } )
 				.text( function(d) { return d } );
-		onChangeDataID();	
+		if ( dataIDs !== null && dataIDs.length > 0 )
+			onChangeDataID();
 	});
 });
 </script>

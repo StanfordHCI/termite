@@ -1,9 +1,7 @@
 .DS_Store
 *.pyc
-/node_modules/
 /tools/
 /externals/
-/client_source/lib/
-/client_source/css/chosen-sprite.png
-/client_source/css/chosen.css
-/client_public/
+/corpus/
+/data/
+/node_modules/

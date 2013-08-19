@@ -67,9 +67,9 @@ $(document).ready(function() {
 	var defaultDataID = "20newsgroups";
 	var defaultEntryID = 0;
 	
-	matrixState = new MatrixState();
-	matrixModel = new MatrixModel({ "state" : matrixState });
-	matrixView = new MatrixView({ "model" : matrixModel });
+	var matrixState = new MatrixState();
+	var matrixModel = new MatrixModel({ "state" : matrixState });
+	var matrixView = new MatrixView({ "model" : matrixModel });
 	
 	var onChangeEntryID = function() {
 		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;

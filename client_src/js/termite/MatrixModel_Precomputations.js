@@ -1,17 +1,19 @@
 MatrixModel.prototype.__initEntries = function() {
-	if ( this.__isDirtyState( "fullMatrix" ) || this.__isDirtyState( "rowDims" ) || this.__isDirtyState( "columnDims" ) || 
+	if ( this.__isDirtyState( "sparseMatrix" ) || this.__isDirtyState( "rowDims" ) || this.__isDirtyState( "columnDims" ) || 
 		 this.__isDirtyState( "rowAdmissions" ) || this.__isDirtyState( "columnAdmissions" ) )
 	{
-		var fullMatrix = this.state.get( "fullMatrix" );
+		var sparseMatrix = this.state.get( "sparseMatrix" );
 		var rowDims = this.state.get( "rowDims" );
 		var columnDims = this.state.get( "columnDims" );
 		var rowAdmissions = this.state.get( "rowAdmissions" );
 		var columnAdmissions = this.state.get( "columnAdmissions" );
-		var allEntries = initAllEntries( rowDims, columnDims, fullMatrix );
+		
+		var allEntries = initAllEntries( rowDims, columnDims, sparseMatrix );
 		var allRowElements = initAllRowElements( rowDims, rowAdmissions );
 		var allColumnElements = initAllColumnElements( columnDims, columnAdmissions );
-		var allRowCrossRefs = initAllRowCrossRefs( rowDims, columnDims, fullMatrix, allRowElements );
-		var allColumnCrossRefs = initAllColumnCrossRefs( rowDims, columnDims, fullMatrix, allColumnElements );
+		var allRowCrossRefs = initAllRowCrossRefs( rowDims, columnDims );
+		var allColumnCrossRefs = initAllColumnCrossRefs( rowDims, columnDims );
+		
 		var allRowMetas = initAllRowMetas( allRowElements );
 		var allColumnMetas = initAllColumnMetas( allColumnElements );
 		var hashEntries = initHashEntries( allEntries );
@@ -33,21 +35,16 @@ MatrixModel.prototype.__initEntries = function() {
 	}
 	
 	// All entries should have properties: rowIndex, columnIndex, absValue, hasEntry, dataType
-	function initAllEntries( rowDims, columnDims, fullMatrix ) {
+	function initAllEntries( rowDims, columnDims, sparseMatrix ) {
 		var allEntries = [];
-		for ( var s = 0; s < rowDims; s++ )
-			for ( var t = 0; t < columnDims; t++ ) {
-				var entry = fullMatrix[s][t];
-				entry.key = s + ":" + t;
-				entry.dataType = "cell";
-				if ( entry.absValue > 0 ) {
-					entry.hasEntry = true;
-					allEntries.push( entry );
-				}
-				else {
-					entry.hasEntry = false;
-				}
-			}
+		for ( var i = 0; i < sparseMatrix.length; i++ ) {
+			var entry = sparseMatrix[i];
+			entry.key = entry.rowIndex + ":" + entry.columnIndex;
+			entry.dataType = "cell";
+			entry.absValue = entry.value;
+			entry.hasEntry = true;
+			allEntries.push( entry );
+		}
 		allEntries.sort( function(a,b) { return b.absValue - a.absValue } );
 		return allEntries;
 	}
@@ -71,9 +68,11 @@ MatrixModel.prototype.__initEntries = function() {
 				"crossRefs" : {},
 				"isAdmitted" : rowAdmissions[s]
 			};
-			for ( var t = 0; t < columnDims; t++ )
-				element.absValue += fullMatrix[s][t].absValue;
 			allRowElements[s] = element;
+		}
+		for ( var n = 0; n < allEntries.length; n++ ) {
+			var entry = allEntries[n];
+			allRowElements[ entry.rowIndex ].absValue += entry.absValue;
 		}
 		return allRowElements;
 	}
@@ -89,33 +88,34 @@ MatrixModel.prototype.__initEntries = function() {
 				"crossRefs" : {},
 				"isAdmitted" : columnAdmissions[t]
 			};
-			for ( var s = 0; s < rowDims; s++ )
-				element.absValue += fullMatrix[s][t].absValue;
 			allColumnElements[t] = element;
+		}
+		for ( var n = 0; n < allEntries.length; n++ ){
+			var entry = allEntries[n];
+			allColumnElements[ entry.columnIndex ].absValue += entry.absValue;
 		}
 		return allColumnElements;
 	}
 	// All row cross references should have properties: index, rowIndex, columnIndex, dataType, parent, entry
-	function initAllRowCrossRefs( rowDims, columnDims, fullMatrix, allRowElements ) {
+	function initAllRowCrossRefs( rowDims, columnDims ) {
 		var allRowCrossRefs = [];
-		for ( var s = 0; s < rowDims; s++ ) {
+		for ( var n = 0; n < allEntries.length; n++ ){
+			var entry = allEntries[n];
+			var s = entry.rowIndex;
+			var t = entry.columnIndex;
 			var element = allRowElements[s];
-			for ( var t = 0; t < columnDims; t++ ) {
-				var entry = fullMatrix[s][t];
-				if ( entry.hasEntry ) {
-					var crossRef = { 
-						"key" : s + ":" + t,
-						"rowIndex" : s, 
-						"columnIndex" : t, 
-						"dataType" : "column", 
-						"parent" : element, 
-						"entry" : fullMatrix[s][t]
-					};
-					element.crossRefs[ t ] = crossRef;
-					allRowCrossRefs.push( crossRef );
-				}
-			}			
+			var crossRef = { 
+				"key" : s + ":" + t,
+				"rowIndex" : s, 
+				"columnIndex" : t, 
+				"dataType" : "column", 
+				"parent" : element, 
+				"entry" : entry
+			};
+			element.crossRefs[ t ] = crossRef;
+			allRowCrossRefs.push( crossRef );
 		}
+				
 		return allRowCrossRefs;
 	}
 	function initHashRowCrossRefs( allRowCrossRefs ) {
@@ -127,26 +127,25 @@ MatrixModel.prototype.__initEntries = function() {
 		return hashRowCrossRefs;
 	}
 	// All column cross references should have properties: index, columnIndex, rowIndex, dataType, parent, entry
-	function initAllColumnCrossRefs( rowDims, columnDims, fullMatrix, allColumnElements ) {
+	function initAllColumnCrossRefs( rowDims, columnDims ) {
 		var allColumnCrossRefs = [];
-		for ( var t = 0; t < columnDims; t++ ) {
+		for ( var n = 0; n < allEntries.length; n++ ){
+			var entry = allEntries[n];
+			var s = entry.rowIndex;
+			var t = entry.columnIndex;
 			var element = allColumnElements[t];
-			for ( var s = 0; s < rowDims; s++ ) {
-				var entry = fullMatrix[s][t];
-				if ( entry.hasEntry ) {
-					var crossRef = { 
-						"key" : s + ":" + t,
-						"rowIndex" : s, 
-						"columnIndex" : t, 
-						"dataType" : "row", 
-						"parent" : element,
-						"entry" : fullMatrix[s][t]
-					};
-					element.crossRefs[ s ] = crossRef;
-					allColumnCrossRefs.push( crossRef );
-				}
-			}
+			var crossRef = { 
+				"key" : s + ":" + t,
+				"rowIndex" : s, 
+				"columnIndex" : t, 
+				"dataType" : "row", 
+				"parent" : element, 
+				"entry" : entry
+			};
+			element.crossRefs[ s ] = crossRef;
+			allColumnCrossRefs.push( crossRef );
 		}
+				
 		return allColumnCrossRefs;
 	}
 	function initHashColumnCrossRefs( allColumnCrossRefs ) {

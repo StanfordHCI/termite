@@ -16,10 +16,9 @@ var MatrixState = CoreModel.extend({
 	// The following list of default values are initialized in the code.
 	// The attributes are presented here for reference, and have no observable effects.
 	"defaults" : {
-		"version" : "termite-2.0.9",
-										// Data
-		"dataID" : undefined,				// @type {string}     Unique identifier for the current dataset
-			"fullMatrix" : [],			// @type {number[][]} Matrix entries as a 2D array
+		"version" : "termite-2.0.10",	// Data
+		"dataID" : undefined,			// @type {string}     Unique identifier for the current dataset
+			"sparseMatrix" : [],		// @type {number[][]} Non-zero Matrix entries as a list
 			"rowDims" : 0,				// @type {number}     Number of rows in the matrix
 			"columnDims" : 0,			// @type {number}     Number of columns in the matrix
 			"rowAdmissions" : [],		// @type {boolean[]}
@@ -137,7 +136,7 @@ MatrixState.prototype.setParameters = function( states ) {
 };
 
 MatrixState.prototype.getParameters = function() {
-	var ignoreKeys = [ "dataID", "fullMatrix", "rowDims", "columnDims", "rowAdmissions", "columnAdmissions" ];
+	var ignoreKeys = [ "dataID", "sparseMatrix", "rowDims", "columnDims", "rowAdmissions", "columnAdmissions" ];
 	var states = {}
 	for ( var key in matrixState.attributes )
 		if ( ignoreKeys.indexOf( key ) === -1 )
@@ -189,16 +188,20 @@ MatrixState.prototype.importEntries = function( dataID, entries, rowDims, column
 	if ( columnAdmissions === undefined )
 		columnAdmissions = _.range( columnDims ).map( function(d) { return true } );
 
-	var fullMatrix = this.__createFullMatrix( rowDims, columnDims );
+	var sparseMatrix = [];
 	for ( var n = 0; n < entries.length; n++ ) {
 		var entry = entries[n];
 		var s = entry.rowIndex;
 		var t = entry.columnIndex;
-		if ( 0 <= s && s < rowDims  &&  0 <= t && t < columnDims ) {
-			fullMatrix[s][t].absValue = entry.value;
-		}
+		var value = entry.value;
+		if ( 0 < entry.value )
+		 	if ( 0 <= s && s < rowDims )
+		 		if ( 0 <= t && t < columnDims )
+					sparseMatrix.push( entry );
 	}
-	this.setAttributeAndDirtyFullMatrix( dataID, rowDims, columnDims, fullMatrix, rowAdmissions, columnAdmissions );
+	
+	this.setAttributeAndDirtyFullMatrix( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions );
+	
 	return this;
 };
 
@@ -215,44 +218,35 @@ MatrixState.prototype.importMatrix = function( dataID, matrix, rowDims, columnDi
 	if ( rowDims === undefined )
 		rowDims = matrix.length;
 	if ( columnDims === undefined )
-		columnDims = _.max( matrix.map( function(d) { return d.length } ) );
+		columnDims = Math.apply.max( Math, matrix.map( function(d) { return d.length } ) );
 	if ( rowAdmissions === undefined )
 		rowAdmissions = _.range( rowDims ).map( function(d) { return false } );
 	if ( columnAdmissions === undefined )
 		columnAdmissions = _.range( columnDims ).map( function(d) { return true } );
-		
-	var fullMatrix = this.__createFullMatrix( rowDims, columnDims );
+
+	var sparseMatrix = [];
 	var sMax = Math.min( rowDims, matrix.length );
 	for ( var s = 0; s < sMax; s++ ) {
 		var tMax = Math.min( columnDims, matrix[s].length );
 		for ( var t = 0; t < tMax; t++ ) {
-			fullMatrix[s][t].absValue = matrix[s][t];
+			if ( 0 < matrix[s][t] )
+				sparseMatrix.push( { "rowIndex" : s, "columnIndex" : t, "value" : matrix[s][t] } );
 		}
 	}
-	this.setAttributeAndDirtyFullMatrix( dataID, rowDims, columnDims, fullMatrix, rowAdmissions, columnAdmissions );
+	
+	this.setAttributeAndDirtyFullMatrix( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions );
+	
 	return this;
 };
 
 /** @private **/
-MatrixState.prototype.__createFullMatrix = function( rowDims, columnDims ) {
-	var fullMatrix = new Array( rowDims );
-	for ( var s = 0; s < rowDims; s++ ) {
-		var fullRow = new Array( columnDims );
-		for ( var t = 0; t < columnDims; t++ )
-			fullRow[t] = { "rowIndex" : s, "columnIndex" : t, "absValue" : 0.0 };
-		fullMatrix[s] = fullRow;
-	}
-	return fullMatrix;
-};
-
-/** @private **/
-MatrixState.prototype.setAttributeAndDirtyFullMatrix = function( dataID, rowDims, columnDims, fullMatrix, rowAdmissions, columnAdmissions ) {
+MatrixState.prototype.setAttributeAndDirtyFullMatrix = function( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions ) {
 	this.setDirty();
 	this.__reset({
 		"dataID" : dataID,
 		"rowDims" : rowDims, 
 		"columnDims" : columnDims, 
-		"fullMatrix" : fullMatrix,
+		"sparseMatrix" : sparseMatrix,
 		"rowAdmissions" : rowAdmissions,
 		"columnAdmissions" : columnAdmissions
 	});

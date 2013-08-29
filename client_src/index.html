@@ -74,10 +74,10 @@ $(document).ready(function() {
 	var onChangeEntryID = function() {
 		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;
 		var entryID = d3.selectAll( "select.entryIDs" )[0][0].value;
-		d3.json( "model/getEntry.py?data="+dataID+"&i="+entryID, function( results ) {
+		d3.json( "/cgi-bin/getEntry.py?data="+dataID+"&entry="+entryID, function( results ) {
 			var rowDims = results.terms.length;
 			var columnDims = results.topics.length;
-			matrixState.importEntries( "entry" + entryID, results.entries, rowDims, columnDims )
+			matrixState.importEntries( "entry" + entryID, results.matrix, rowDims, columnDims )
 				.allRowLabels( results.terms )
 				.allColumnLabels( results.topics )
 				.setParameters( results.states );
@@ -87,7 +87,7 @@ $(document).ready(function() {
 
 	var onChangeDataID = function() {
 		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;
-		d3.json( "model/listEntries.py?data="+dataID, function( results ) {
+		d3.json( "/cgi-bin/listEntries.py?data="+dataID, function( results ) {
 			var entryIDs = results.entryIDs;
 			var element = d3.selectAll( "select.entryIDs" );
 			element.selectAll("*").remove();
@@ -101,7 +101,7 @@ $(document).ready(function() {
 		});
 	};
 	
-	d3.json( "model/listDatasets.py", function( results ) {
+	d3.json( "/cgi-bin/listDatasets.py", function( results ) {
 		var dataIDs = results.dataIDs;
 		var element = d3.selectAll( "select.dataIDs" );
 		element.on( "change", onChangeDataID );

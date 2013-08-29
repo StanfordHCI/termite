@@ -10,7 +10,6 @@ cgitb.enable()
 server = BaseHTTPServer.HTTPServer
 handler = CGIHTTPServer.CGIHTTPRequestHandler
 server_address = ( '', 8888 )
-handler.cgi_directories = [ '/client_src/model', '/client_min/model' ]
 
 print 'Web server is now running at http://localhost:8888'
 print 'Press "Ctrl + C" to stop the web server.'

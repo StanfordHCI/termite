@@ -25,7 +25,7 @@ def main():
 		print "Error: Invalid dataset identifier ({}).".format( dataID )
 		return
 
-	entryID = form.getvalue( 'i' )
+	entryID = form.getvalue( 'entry' )
 	if entryID is None:
 		print "Content-Type: text/plain;charset=utf-8"
 		print

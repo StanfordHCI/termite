@@ -56,3 +56,9 @@ $MALLET/bin/mallet train-topics \
 
 echo "Extracting topic model outputs: [$LDA_FOLDER] --> [$ENTRY_FOLDER]"
 src/ReadMallet.py $LDA_FOLDER $ENTRY_FOLDER
+
+echo "Creating default index file: $CORPUS_FOLDER/index.json"
+echo '{ "runID" : "$RUN_IDENTIFIER", "entryIDs" : [ 0 ], "nextEntryID" : 1 }' > $CORPUS_FOLDER/index.json
+
+echo "Creating default state file: $ENTRY_FOLDER/states.json"
+echo '{}' > $ENTRY_FOLDER/states.json

@@ -17,12 +17,7 @@ var MatrixState = CoreModel.extend({
 	// The attributes are presented here for reference, and have no observable effects.
 	"defaults" : {
 		"version" : "termite-2.0.10",	// Data
-		"dataID" : undefined,			// @type {string}     Unique identifier for the current dataset
-			"sparseMatrix" : [],		// @type {number[][]} Non-zero Matrix entries as a list
-			"rowDims" : 0,				// @type {number}     Number of rows in the matrix
-			"columnDims" : 0,			// @type {number}     Number of columns in the matrix
-			"rowAdmissions" : [],		// @type {boolean[]}
-			"columnAdmissions" : []		// @type {boolean[]}
+		"dataID" : undefined			// @type {string}     Unique identifier for the current dataset
 	}
 });
 
@@ -51,8 +46,8 @@ MatrixState.prototype.CONST = {
 };
 
 MatrixState.prototype.__resetParameters = function() {
-	var rowDims = this.get( "rowDims" );
-	var columnDims = this.get( "columnDims" );
+	var rowDims = this.__data__.rowDims;
+	var columnDims = this.__data__.columnDims;
 	var selectionCount = this.CONST.SELECTION_COUNT;
 	this.__reset({
 											// Normalization
@@ -76,7 +71,7 @@ MatrixState.prototype.__resetParameters = function() {
 		"rowOrderingType" : "auto", 		// @type {string} How to order matrix rows; one of { "auto", "user" }
 		"rowCurrentOrdering" : null,
 		"rowUserDefinedOrdering" : _.range( rowDims ),
-		"columnOrderingType" : "user", 		// @type {string} How to order matrix rows; one of { "auto", "user" }
+		"columnOrderingType" : "auto", 		// @type {string} How to order matrix rows; one of { "auto", "user" }
 		"columnCurrentOrdering" : null,
 		"columnUserDefinedOrdering" : _.range( columnDims ),
 
@@ -199,9 +194,7 @@ MatrixState.prototype.importEntries = function( dataID, entries, rowDims, column
 		 		if ( 0 <= t && t < columnDims )
 					sparseMatrix.push( entry );
 	}
-	
-	this.setAttributeAndDirtyFullMatrix( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions );
-	
+	this.__importMatrix( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions );
 	return this;
 };
 
@@ -233,23 +226,20 @@ MatrixState.prototype.importMatrix = function( dataID, matrix, rowDims, columnDi
 				sparseMatrix.push( { "rowIndex" : s, "columnIndex" : t, "value" : matrix[s][t] } );
 		}
 	}
-	
-	this.setAttributeAndDirtyFullMatrix( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions );
-	
+	this.__importMatrix( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions );
 	return this;
 };
 
-/** @private **/
-MatrixState.prototype.setAttributeAndDirtyFullMatrix = function( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions ) {
+MatrixState.prototype.__importMatrix = function( dataID, rowDims, columnDims, sparseMatrix, rowAdmissions, columnAdmissions ) {
 	this.setDirty();
-	this.__reset({
-		"dataID" : dataID,
-		"rowDims" : rowDims, 
-		"columnDims" : columnDims, 
-		"sparseMatrix" : sparseMatrix,
+	this.setAttributeAndDirty( "dataID", dataID );
+	this.__data__ = {
+		"rowDims" : rowDims,
+		"columnDims" : columnDims,
 		"rowAdmissions" : rowAdmissions,
-		"columnAdmissions" : columnAdmissions
-	});
+		"columnAdmissions" : columnAdmissions,
+		"sparseMatrix" : sparseMatrix
+	};
 	this.__resetParameters();
 };
 
@@ -274,7 +264,7 @@ MatrixState.prototype.normalization = function( normalization ) {
 // Visibilities
 
 MatrixState.prototype.rowInclusionsAndExclusions = function( index, isIncludedOrExcluded ) {
-	if ( 0 <= index && index < this.get( "rowDims" ) )
+	if ( 0 <= index && index < this.__data__.rowDims )
 		if ( isIncludedOrExcluded === true || isIncludedOrExcluded === false || isIncludedOrExcluded === undefined )
 			if ( this.getAttribute( "rowInExclusions", index ) !== isIncludedOrExcluded )
 				this.setAttributeAndDirty( "rowInExclusions", index, isIncludedOrExcluded );
@@ -282,7 +272,7 @@ MatrixState.prototype.rowInclusionsAndExclusions = function( index, isIncludedOr
 };
 
 MatrixState.prototype.rowUserDefinedVisibilities = function( index, isVisibleOrHidden ) {
-	if ( 0 <= index && index < this.get( "rowDims" ) )
+	if ( 0 <= index && index < this.__data__.rowDims )
 		if ( isVisibleOrHidden === true || isVisibleOrHidden === false || isVisibleOrHidden === undefined )
 			if ( this.getAttribute( "rowUserDefinedVisibilities", index ) !== isVisibleOrHidden )
 				this.setAttributeAndDirty( "rowUserDefinedVisibilities", index, isVisibleOrHidden );
@@ -296,7 +286,7 @@ MatrixState.prototype.globalVisibleRowCount = function( visibleRowCount ) {
 	return this;
 };
 MatrixState.prototype.columnVisibleRowCounts = function( index, visibleRowCount ) {
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( 0 <= visibleRowCount )
 			if ( this.getAttribute( "columnVisibleRowCounts", index ) !== visibleRowCount )
 				this.setAttributeAndDirty( "columnVisibleRowCounts", index, visibleRowCount );
@@ -317,7 +307,7 @@ MatrixState.prototype.globalVisibleRowQuantile = function( visibleRowQuantile ) 
 	return this;
 };
 MatrixState.prototype.columnVisibleRowQuantiles = function( index, visibleRowQuantile ) {
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( 0 <= visibleRowQuantile )
 			if ( this.getAttribute( "columnVisibleRowQuantiles", index ) !== visibleRowQuantile )
 				this.setAttributeAndDirty( "columnVisibleRowQuantiles", index, visibleRowQuantile );
@@ -341,7 +331,7 @@ MatrixState.prototype.rowAutoOrdering = function( ordering ) {
 		if ( ordering === undefined )
 			ordering = this.getAttribute( "rowCurrentOrdering" );
 		
-		var rowDims = this.get( "rowDims" );
+		var rowDims = this.__data__.rowDims;
 		var rowAutoOrderingBaseList = this.__sanitizeOrdering( rowDims, ordering )
 		this.setAttributeAndDirty( "rowAutoOrderingBaseList", rowAutoOrderingBaseList );
 		this.setAttributeAndDirty( "globalOrderedRowCount", 0.0 );
@@ -363,7 +353,7 @@ MatrixState.prototype.globalOrderedRowCount = function( orderedRowCount ) {
 };
 MatrixState.prototype.columnOrderedRowCounts = function( index, orderedRowCount ) {
 	this.rowAutoOrdering();
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( this.CONST.MIN_ORDERED_ROW_COUNT <= orderedRowCount && orderedRowCount <= this.CONST.MAX_ORDERED_ROW_COUNT )
 			if ( this.getAttribute( "columnOrderedRowCounts", index ) !== orderedRowCount )
 				this.setAttributeAndDirty( "columnOrderedRowCounts", index, orderedRowCount );
@@ -387,7 +377,7 @@ MatrixState.prototype.globalOrderedRowQuantile = function( orderedRowQuantile ) 
 };
 MatrixState.prototype.columnOrderedRowQuantiles = function( index, orderedRowQuantile ) {
 	this.rowAutoOrdering();
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( 0 <= orderedRowQuantile && orderedRowQuantile <= 100 )
 			if ( this.getAttribute( "columnOrderedRowQuantiles", index ) !== orderedRowQuantile )
 				this.setAttributeAndDirty( "columnOrderedRowQuantiles", index, orderedRowQuantile );
@@ -407,7 +397,7 @@ MatrixState.prototype.rowUserDefinedOrdering = function( ordering ) {
 	if ( this.getAttribute( "rowOrderingType" ) !== rowOrderingType )
 		this.setAttributeAndDirty( "rowOrderingType", rowOrderingType );
 
-	var rowDims = this.get( "rowDims" );
+	var rowDims = this.__data__.rowDims;
 	var rowUserDefinedOrdering = this.__sanitizeOrdering( rowDims, ordering )
 	this.setAttributeAndDirty( "rowUserDefinedOrdering", rowUserDefinedOrdering );
 	return this;
@@ -418,7 +408,7 @@ MatrixState.prototype.columnUserDefinedOrdering = function( ordering ) {
 	if (  this.getAttribute( "columnOrderingType" ) !== rowOrderingType )
 		this.setAttributeAndDirty( "columnOrderingType", rowOrderingType );
 
-	var columnDims = this.get( "columnDims" );
+	var columnDims = this.__data__.columnDims;
 	var columnUserDefinedOrdering = this.__sanitizeOrdering( columnDims, ordering )
 	this.setAttributeAndDirty( "columnUserDefinedOrdering", columnUserDefinedOrdering );
 	return this;
@@ -451,7 +441,7 @@ MatrixState.prototype.__sanitizeOrdering = function( N, list ) {
  * @param {number} previousRowIndex The row immediately before the reordered row.
  */
 MatrixState.prototype.moveRowAfter = function( rowIndex, previousRowIndex ) {
-	var rowDims = this.get( "rowDims" );
+	var rowDims = this.__data__.rowDims;
 	if ( 0 <= rowIndex && rowIndex < rowDims )
 		if ( 0 <= previousRowIndex && previousRowIndex < rowDims ) {
 			var rowCurrentOrdering = this.get( "rowCurrentOrdering" );
@@ -467,7 +457,7 @@ MatrixState.prototype.moveRowAfter = function( rowIndex, previousRowIndex ) {
  * @param {number} nextRowIndex The row immediately after the reordered row.
  */
 MatrixState.prototype.moveRowBefore = function( rowIndex, nextRowIndex ) {
-	var rowDims = this.get( "rowDims" );
+	var rowDims = this.__data__.rowDims;
 	if ( 0 <= rowIndex && rowIndex < rowDims )
 		if ( 0 <= nextRowIndex && nextRowIndex < rowDims ) {
 			var rowCurrentOrdering = this.get( "rowCurrentOrdering" );
@@ -483,7 +473,7 @@ MatrixState.prototype.moveRowBefore = function( rowIndex, nextRowIndex ) {
  * @param {number} previousColumnIndex The column immediately before the reordered column.
  */
 MatrixState.prototype.moveColumnAfter = function( columnIndex, previousColumnIndex ) {
-	var columnDims = this.get( "columnDims" );
+	var columnDims = this.__data__.columnDims;
 	if ( 0 <= columnIndex && columnIndex < columnDims )
 		if ( 0 <= previousColumnIndex && previousColumnIndex < columnDims ) {
 			var columnCurrentOrdering = this.get( "columnCurrentOrdering" );
@@ -499,7 +489,7 @@ MatrixState.prototype.moveColumnAfter = function( columnIndex, previousColumnInd
  * @param {number} nextColumnIndex The column immediately after the reordered column.
  */
 MatrixState.prototype.moveColumnBefore = function( columnIndex, nextColumnIndex ) {
-	var columnDims = this.get( "columnDims" );
+	var columnDims = this.__data__.columnDims;
 	if ( 0 <= columnIndex && columnIndex < columnDims )
 		if ( 0 <= nextColumnIndex && nextColumnIndex < columnDims ) {
 			var columnCurrentOrdering = this.get( "columnCurrentOrdering" );
@@ -529,7 +519,7 @@ MatrixState.prototype.__getMoveBeforeOrdering = function( N, ordering, index, ne
 // Highlights, Selections, Expansions
 
 MatrixState.prototype.rowHighlights = function( index ) {
-	if ( 0 <= index && index < this.get( "rowDims" ) )
+	if ( 0 <= index && index < this.__data__.rowDims )
 		if ( this.getAttribute( "rowHighlights", index ) !== true ) {
 			for ( var s in this.get( "rowHighlights" ) ) { this.setAttributeAndDirty( "rowHighlights", s, undefined ) }
 			for ( var t in this.get( "columnHighlights" ) ) { this.setAttributeAndDirty( "columnHighlights", t, undefined ) }
@@ -540,7 +530,7 @@ MatrixState.prototype.rowHighlights = function( index ) {
 };
 
 MatrixState.prototype.columnHighlights = function( index ) {
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( this.getAttribute( "columnHighlights", index ) !== true ) {
 			for ( var s in this.get( "rowHighlights" ) ) { this.setAttributeAndDirty( "rowHighlights", s, undefined ) }
 			for ( var t in this.get( "columnHighlights" ) ) { this.setAttributeAndDirty( "columnHighlights", t, undefined ) }
@@ -552,8 +542,8 @@ MatrixState.prototype.columnHighlights = function( index ) {
 
 MatrixState.prototype.entryHighlights = function( rowIndex, columnIndex ) {
 	var entryKey = rowIndex + ":" + columnIndex;
-	if ( 0 <= rowIndex && rowIndex < this.get( "rowDims" ) )
-		if ( 0 <= columnIndex && columnIndex < this.get( "columnDims" ) )
+	if ( 0 <= rowIndex && rowIndex < this.__data__.rowDims )
+		if ( 0 <= columnIndex && columnIndex < this.__data__.columnDims )
 			if ( this.getAttribute( "entryHighlights", entryKey ) !== true ) {
 				for ( var s in this.get( "rowHighlights" ) ) { this.setAttributeAndDirty( "rowHighlights", s, undefined ) }
 				for ( var t in this.get( "columnHighlights" ) ) { this.setAttributeAndDirty( "columnHighlights", t, undefined ) }
@@ -571,7 +561,7 @@ MatrixState.prototype.noHighlights = function() {
 };
 
 MatrixState.prototype.rowExpansions = function( index ) {
-	if ( 0 <= index && index < this.get( "rowDims" ) )
+	if ( 0 <= index && index < this.__data__.rowDims )
 		if ( this.getAttribute( "rowExpansions", index ) !== true ) {
 			for ( var s in this.getAttribute( "rowExpansions" ) ) { this.setAttributeAndDirty( "rowExpansions", s, undefined ) }
 			for ( var t in this.getAttribute( "columnExpansions" ) ) { this.setAttributeAndDirty( "columnExpansions", t, undefined ) }
@@ -581,7 +571,7 @@ MatrixState.prototype.rowExpansions = function( index ) {
 };
 
 MatrixState.prototype.columnExpansions = function( index ) {
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( this.getAttribute( "columnExpansions", index ) !== true ) {
 			for ( var s in this.getAttribute( "rowExpansions" ) ) { this.setAttributeAndDirty( "rowExpansions", s, undefined ) }
 			for ( var t in this.getAttribute( "columnExpansions" ) ) { this.setAttributeAndDirty( "columnExpansions", t, undefined ) }
@@ -599,7 +589,7 @@ MatrixState.prototype.noExpansions = function() {
 MatrixState.prototype.expandNextColumn = function() {
 	var thisColumnExpansion = _.keys( this.state.get( "columnExpansions" ) ).map( function(d) { return parseInt(d) } )[0];
 	if ( thisColumnExpansion !== undefined ) {
-		var columnDims = this.get( "columnDims" );
+		var columnDims = this.__data__.columnDims;
 		var columnOrderingType = this.get( "columnOrderingType" );
 		var index = columnOrderingType.indexOf( thisColumnExpansion );
 		nextColumnExpansion = columnOrderingType[ ( index + 1 ) % columnDims ];
@@ -611,7 +601,7 @@ MatrixState.prototype.expandNextColumn = function() {
 MatrixState.prototype.expandPreviousColumn = function() {
 	var thisColumnExpansion = _.keys( this.state.get( "columnExpansions" ) ).map( function(d) { return parseInt(d) } )[0];
 	if ( thisColumnExpansion !== undefined ) {
-		var columnDims = this.get( "columnDims" );
+		var columnDims = this.__data__.columnDims;
 		var columnOrderingType = this.get( "columnOrderingType" );
 		var index = columnOrderingType.indexOf( columnExpansions );
 		prevColumnExpansion = columnOrderingType[ ( index + columnDims - 1 ) % columnDims ];
@@ -621,7 +611,7 @@ MatrixState.prototype.expandPreviousColumn = function() {
 };
 
 MatrixState.prototype.rowSelections = function( index, selection ) {
-	if ( 0 <= index && index < this.get( "rowDims" ) )
+	if ( 0 <= index && index < this.__data__.rowDims )
 		if ( 0 <= selection && selection < this.get( "selectionCount" ) || selection === undefined )
 			if ( this.getAttribute( "rowSelections", index ) !== selection )
 				this.setAttributeAndDirty( "rowSelections", index, selection );
@@ -629,7 +619,7 @@ MatrixState.prototype.rowSelections = function( index, selection ) {
 };
 
 MatrixState.prototype.columnSelections = function( index, selection ) {
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( 0 <= selection && selection < this.get( "selectionCount" ) || selection === undefined )
 			if ( this.getAttribute( "columnSelections", index ) !== selection )
 				this.setAttributeAndDirty( "columnSelections", index, selection );
@@ -646,8 +636,8 @@ MatrixState.prototype.noSelections = function() {
 // Promotions & demotions
 
 MatrixState.prototype.entryPromotionsAndDemotions = function( rowIndex, columnIndex, isPromotedOrDemoted ) {
-	if ( 0 <= rowIndex && rowIndex < this.get( "rowDims" ) )
-		if ( 0 <= columnIndex && columnIndex < this.get( "columnDims" ) ) {
+	if ( 0 <= rowIndex && rowIndex < this.__data__.rowDims )
+		if ( 0 <= columnIndex && columnIndex < this.__data__.columnDims ) {
 			var key = rowIndex + ":" + columnIndex;
 			if ( isPromotedOrDemoted === true || isPromotedOrDemoted === false || isPromotedOrDemoted === undefined )
 				if ( this.getAttribute( "entryProDemotions", key ) !== isPromotedOrDemoted )
@@ -660,21 +650,21 @@ MatrixState.prototype.entryPromotionsAndDemotions = function( rowIndex, columnIn
 // Labels
 
 MatrixState.prototype.rowLabels = function( index, label ) {
-	if ( 0 <= index && index < this.get( "rowDims" ) )
+	if ( 0 <= index && index < this.__data__.rowDims )
 		if ( this.getAttribute( "rowLabels", index ) !== label )
 			this.setAttributeAndDirty( "rowLabels", index, label );
 	return this;
 };
 
 MatrixState.prototype.columnLabels = function( index, label ) {
-	if ( 0 <= index && index < this.get( "columnDims" ) )
+	if ( 0 <= index && index < this.__data__.columnDims )
 		if ( this.getAttribute( "columnLabels", index ) !== label )
 			this.setAttributeAndDirty( "columnLabels", index, label );
 	return this;
 };
 
 MatrixState.prototype.allRowLabels = function( labels ) {
-	var rowDims = this.get( "rowDims" );
+	var rowDims = this.__data__.rowDims;
 	var rowLabels = this.__initLabels( rowDims, this.CONST.ROW_PREFIX );
 	for ( var s = 0; s < rowLabels.length && s < labels.length; s++ )
 		rowLabels[s] = labels[s];
@@ -683,7 +673,7 @@ MatrixState.prototype.allRowLabels = function( labels ) {
 };
 
 MatrixState.prototype.allColumnLabels = function( labels ) {
-	var columnDims = this.get( "columnDims" );
+	var columnDims = this.__data__.columnDims;
 	var columnLabels = this.__initLabels( columnDims, this.CONST.COLUMN_PREFIX );
 	for ( var s = 0; s < columnLabels.length && s < labels.length; s++ )
 		columnLabels[s] = labels[s];

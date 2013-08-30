@@ -1,12 +1,10 @@
 MatrixModel.prototype.__initEntries = function() {
-	if ( this.__isDirtyState( "sparseMatrix" ) || this.__isDirtyState( "rowDims" ) || this.__isDirtyState( "columnDims" ) || 
-		 this.__isDirtyState( "rowAdmissions" ) || this.__isDirtyState( "columnAdmissions" ) )
-	{
-		var sparseMatrix = this.state.get( "sparseMatrix" );
-		var rowDims = this.state.get( "rowDims" );
-		var columnDims = this.state.get( "columnDims" );
-		var rowAdmissions = this.state.get( "rowAdmissions" );
-		var columnAdmissions = this.state.get( "columnAdmissions" );
+	if ( this.__isDirtyState( "dataID" ) ) {
+		var sparseMatrix = this.state.__data__.sparseMatrix;
+		var rowDims = this.state.__data__.rowDims;
+		var columnDims = this.state.__data__.columnDims;
+		var rowAdmissions = this.state.__data__.rowAdmissions;
+		var columnAdmissions = this.state.__data__.columnAdmissions;
 		
 		var allEntries = initAllEntries( rowDims, columnDims, sparseMatrix );
 		var allRowElements = initAllRowElements( rowDims, rowAdmissions );
@@ -39,7 +37,7 @@ MatrixModel.prototype.__initEntries = function() {
 		var allEntries = [];
 		for ( var i = 0; i < sparseMatrix.length; i++ ) {
 			var entry = sparseMatrix[i];
-			entry.key = entry.rowIndex + ":" + entry.columnIndex;
+			entry.key = entry["rowIndex"] + ":" + entry["columnIndex"];
 			entry.dataType = "cell";
 			entry.absValue = entry.value;
 			entry.hasEntry = true;

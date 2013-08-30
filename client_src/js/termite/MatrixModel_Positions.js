@@ -25,8 +25,10 @@ MatrixModel.prototype.__updateColumnAbsOrdering = function() {
 	{
 		var columnOrderingType = this.state.get( "columnOrderingType" );
 		var columnAbsOrdering = undefined;
+		if ( columnOrderingType === "auto" )
+			columnAbsOrdering = this.__getColumnAutoOrdering();
 		if ( columnOrderingType === "user" )
-			var columnAbsOrdering = this.state.get( "columnUserDefinedOrdering" );
+			columnAbsOrdering = this.state.get( "columnUserDefinedOrdering" );
 		this.state.set( "columnCurrentOrdering", columnAbsOrdering );
 		this.__setDirtyModelAndValue( "columnAbsOrdering", columnAbsOrdering );
 	}
@@ -205,6 +207,11 @@ MatrixModel.prototype.__getRowAutoOrdering = function() {
 	for ( var s = 0; s < allRowElements.length; s++ )
 		rowAbsOrdering[s] = rowPriorities[s].index;
 	return rowAbsOrdering;
+};
+
+MatrixModel.prototype.__getColumnAutoOrdering = function() {
+	var allColumnElements = this.get( "allColumnElements" );
+	return _.range( allColumnElements.length );
 };
 
 //--------------------------------------------------------------------------------------------------

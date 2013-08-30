@@ -17,9 +17,10 @@ else
 	NUM_TOPICS=25
 fi
 
-INPUT_FILENAME=data/$RUN_IDENTIFIER/$RUN_IDENTIFIER.mallet
-LDA_FOLDER=data/$RUN_IDENTIFIER/lda
-ENTRY_FOLDER=data/$RUN_IDENTIFIER/entry-0000
+RUN_FOLDER=data/$RUN_IDENTIFIER
+INPUT_FILENAME=$RUN_FOLDER/$RUN_IDENTIFIER.mallet
+LDA_FOLDER=$RUN_FOLDER/lda
+ENTRY_FOLDER=$RUN_FOLDER/entry-0000
 
 #------------------------------------------------------------------------------#
 
@@ -33,7 +34,7 @@ function __create_folder__ {
 }
 
 __create_folder__ data
-__create_folder__ data/$RUN_IDENTIFIER
+__create_folder__ $RUN_FOLDER
 __create_folder__ $LDA_FOLDER
 __create_folder__ $ENTRY_FOLDER
 
@@ -57,8 +58,8 @@ $MALLET/bin/mallet train-topics \
 echo "Extracting topic model outputs: [$LDA_FOLDER] --> [$ENTRY_FOLDER]"
 src/ReadMallet.py $LDA_FOLDER $ENTRY_FOLDER
 
-echo "Creating default index file: $CORPUS_FOLDER/index.json"
-echo '{ "runID" : "$RUN_IDENTIFIER", "entryIDs" : [ 0 ], "nextEntryID" : 1 }' > $CORPUS_FOLDER/index.json
+echo "Creating default index file: $RUN_FOLDER/index.json"
+echo '{ "runID" : "$RUN_IDENTIFIER", "entryIDs" : [ 0 ], "nextEntryID" : 1 }' > $RUN_FOLDER/index.json
 
 echo "Creating default state file: $ENTRY_FOLDER/states.json"
 echo '{}' > $ENTRY_FOLDER/states.json

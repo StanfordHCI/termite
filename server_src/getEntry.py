@@ -38,10 +38,10 @@ def main():
 		print "Error: Invalid entry identifier ({}/{}).".format( dataID, entryID )
 		return
 
-	content = dataManager.GetEntry( dataID, entryID )
+	response = dataManager.GetEntry( dataID, entryID )
 	print "Content-Type: application/json;charset=utf-8"
 	print
-	print json.dumps( content, encoding = 'utf-8' )
+	print json.dumps( response, encoding = 'utf-8' )
 
 if __name__ == '__main__':
 	main()

@@ -88,7 +88,7 @@ class DataManager:
 			return None
 	
 	def ListDatasets( self ):
-		results = {
+		response = {
 			'dataIDs' : None
 		}
 		path = '{}/*'.format( self.ROOT )
@@ -97,23 +97,23 @@ class DataManager:
 			if os.path.isdir( folder ):
 				dataID = folder[ len(path)-1 : ]
 				dataIDs.append( dataID )
-		results['dataIDs'] = dataIDs
-		return results
+		response['dataIDs'] = dataIDs
+		return response
 
 	def HasDataset( self, dataID ):
 		path = '{}/{}'.format( self.ROOT, dataID )
 		return os.path.exists( path )
 
 	def ListEntries( self, dataID ):
-		results = {
+		response = {
 			'dataID' : dataID,
 			'entryIDs' : None
 		}
 		if not self.HasDataset( dataID ):
-			return results
+			return response
 		index = self.__ReadIndex( dataID )
-		results['entryIDs'] = index['entryIDs']
-		return results
+		response['entryIDs'] = index['entryIDs']
+		return response
 
 	def HasEntry( self, dataID, entryID ):
 		index = self.__ReadIndex( dataID )
@@ -121,8 +121,9 @@ class DataManager:
 			return False
 		return entryID in index['entryIDs']
 
+	# depreciated
 	def GetEntry( self, dataID, entryID ):
-		results = {
+		response = {
 			'dataID' : dataID,
 			'entryID' : entryID,
 			'terms' : None,
@@ -131,19 +132,20 @@ class DataManager:
 			'states' : None
 		}
 		if not self.HasDataset( dataID ):
-			return results
+			return response
 		if not self.HasEntry( dataID, entryID ):
-			return results
-		results['terms'] = self.__ReadTerms( dataID, entryID )
-		results['topics'] = self.__ReadTopics( dataID, entryID )
-		results['matrix'] = self.__ReadTermTopicMatrix( dataID, entryID )
-		if results['matrix'] is None:
-			results['matrix'] = self.__ReadTermTopicEntries( dataID, entryID )
-		results['states'] = self.__ReadStates( dataID, entryID )
-		return results
+			return response
+		response['terms'] = self.__ReadTerms( dataID, entryID )
+		response['topics'] = self.__ReadTopics( dataID, entryID )
+		response['matrix'] = self.__ReadTermTopicMatrix( dataID, entryID )
+		if response['matrix'] is None:
+			response['matrix'] = self.__ReadTermTopicEntries( dataID, entryID )
+		response['states'] = self.__ReadStates( dataID, entryID )
+		return response
 
+	# depreciated
 	def SetEntry( self, dataID, entryID, request ):
-		results = {
+		response = {
 			'dataID' : dataID,
 			'entryID' : entryID,
 			'terms' : None,
@@ -152,13 +154,58 @@ class DataManager:
 			'states' : None
 		}
 		if not self.HasDataset( dataID ):
-			return results
+			return response
 		if not self.HasEntry( dataID, entryID ):
-			return results
-		results['terms'] = self.__ReadTerms( dataID, entryID )
-		results['topics'] = self.__ReadTopics( dataID, entryID )
-		results['matrix'] = self.__ReadTermTopicMatrix( dataID, entryID )
-		if results['matrix'] is None:
-			results['matrix'] = self.__ReadTermTopicEntries( dataID, entryID )
-		results['states'] = self.__WriteStates( dataID, entryID, request['states'] )
-		return results
+			return response
+		response['terms'] = self.__ReadTerms( dataID, entryID )
+		response['topics'] = self.__ReadTopics( dataID, entryID )
+		response['matrix'] = self.__ReadTermTopicMatrix( dataID, entryID )
+		if response['matrix'] is None:
+			response['matrix'] = self.__ReadTermTopicEntries( dataID, entryID )
+		response['states'] = self.__WriteStates( dataID, entryID, request['states'] )
+		return response
+
+	def GetData( self, dataID, entryID ):
+		response = {
+			'dataID' : dataID,
+			'entryID' : entryID,
+			'terms' : None,
+			'topics' : None,
+			'entries' : None
+		}
+		if not self.HasDataset( dataID ):
+			return response
+		if not self.HasEntry( dataID, entryID ):
+			return response
+		response['terms'] = self.__ReadTerms( dataID, entryID )
+		response['topics'] = self.__ReadTopics( dataID, entryID )
+		response['matrix'] = self.__ReadTermTopicMatrix( dataID, entryID )
+		if response['matrix'] is None:
+			response['matrix'] = self.__ReadTermTopicEntries( dataID, entryID )
+		return response
+
+	def GetStates( self, dataID, entryID ):
+		response = {
+			'dataID' : dataID,
+			'entryID' : entryID,
+			'states' : None
+		}
+		if not self.HasDataset( dataID ):
+			return response
+		if not self.HasEntry( dataID, entryID ):
+			return response
+		response['states'] = self.__ReadStates( dataID, entryID )
+		return response
+
+	def SetStates( self, dataID, entryID, request ):
+		response = {
+			'dataID' : dataID,
+			'entryID' : entryID,
+			'states' : None
+		}
+		if not self.HasDataset( dataID ):
+			return response
+		if not self.HasEntry( dataID, entryID ):
+			return response
+		response['states'] = self.__WriteStates( dataID, entryID, request['states'] )
+		return response

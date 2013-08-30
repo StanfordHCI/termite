@@ -37,15 +37,8 @@ def main():
 		print
 		print "Error: Invalid entry identifier ({}/{}).".format( dataID, entryID )
 		return
-	
-	content = form.getvalue( 'content' )
-	if content is None:
-		print "Content-Type: text/plain;charset=utf-8"
-		print
-		print "Error: Entry content is not provided."
-		return
 
-	response = dataManager.SetEntry( dataID, entryID, { "states" : content } )
+	response = dataManager.GetData( dataID, entryID )
 	print "Content-Type: application/json;charset=utf-8"
 	print
 	print json.dumps( response, encoding = 'utf-8' )

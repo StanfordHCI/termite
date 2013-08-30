@@ -45,7 +45,7 @@ def main():
 		print "Error: Entry content is not provided."
 		return
 
-	response = dataManager.SetEntry( dataID, entryID, { "states" : content } )
+	response = dataManager.SetStates( dataID, entryID, content )
 	print "Content-Type: application/json;charset=utf-8"
 	print
 	print json.dumps( response, encoding = 'utf-8' )

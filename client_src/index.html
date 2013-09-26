@@ -74,15 +74,8 @@ $(document).ready(function() {
 	var onChangeEntryID = function() {
 		var dataID = d3.selectAll( "select.dataIDs" )[0][0].value;
 		var entryID = d3.selectAll( "select.entryIDs" )[0][0].value;
-		d3.json( "/cgi-bin/getEntry.py?data="+dataID+"&entry="+entryID, function( results ) {
-			var rowDims = results.terms.length;
-			var columnDims = results.topics.length;
-			matrixState.importEntries( "entry" + entryID, results.matrix, rowDims, columnDims )
-				.allRowLabels( results.terms )
-				.allColumnLabels( results.topics )
-				.setParameters( results.states );
-			
-		});
+		matrixState.set({ "dataID" : dataID, "entryID" : entryID });
+		matrixState.loadStates();
 	};
 
 	var onChangeDataID = function() {

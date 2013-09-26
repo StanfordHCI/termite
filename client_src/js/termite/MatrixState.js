@@ -139,6 +139,26 @@ MatrixState.prototype.getParameters = function() {
 	return states;
 };
 
+MatrixState.prototype.loadStates = function() {
+	var dataID = this.get( "dataID" );
+	var entryID = 0;
+	var url = "/cgi-bin/getEntry.py?data=" + dataID + "&entry=" + entryID;
+	this.fetch({
+		"url" : url,
+		"success" : function( model, response, options ) {
+			var rowDims = response.terms.length;
+			var columnDims = response.topics.length;
+			model.importEntries( "entry" + entryID, response.matrix, rowDims, columnDims )
+				.allRowLabels( response.terms )
+				.allColumnLabels( response.topics )
+				.setParameters( response.states );
+		},
+		"error" : function( model, response, options ) {
+			console.log( "[MatrixState.load] [error]", model, response, options );
+		}
+	});
+};
+
 //--------------------------------------------------------------------------------------------------
 
 MatrixState.prototype.__initUpdates = function() {

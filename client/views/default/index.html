@@ -1,0 +1,79 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Termite | Topic Modeling Visualization</title>
+	<link rel="stylesheet" type="text/css" href="{{=URL('static','css/MatrixView.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{=URL('static','css/font-awesome.css')}}">
+	<script type="text/javascript" src="{{=URL('static','js/lib/d3.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/lib/jquery.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/lib/underscore.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/lib/backbone.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/CoreModel.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/CoreView.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixState.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_Precomputations.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_Visibilities.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_Styles.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_Values.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_Positions.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_AnnotationControls.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixModel_SelectionGroups.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixInteractions.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixView.js')}}"></script>
+	<script type="text/javascript" src="{{=URL('static','js/matrix/MatrixSelections.js')}}"></script>
+	
+<style type="text/css">
+body, div, p {
+	border: 0;
+	padding: 0;
+	margin: 0
+}
+body {
+	padding: 10px;
+	font-family: Gill Sans;
+	font-size: 10pt;
+	color: #666;
+}
+div.container {
+	display: inline-block;
+	vertical-align: top;
+	margin: 10px;
+	padding: 10px;
+	border: 1px solid #999;
+	box-shadow: 2px 2px 15px #ccc;
+	background: #eee;
+}
+div.event {
+	margin: 0 5px 2px 5px;
+	color: #666;
+}
+a {
+	color: #666;
+	text-decoration: none;
+}
+a:hover {
+	color: 000;
+	text-decoration: underline;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+	var dataID = "{{=request.application}}";
+	matrixState = new MatrixState({ "dataID" : dataID });
+	matrixModel = new MatrixModel({ "state" : matrixState });
+	matrixView = new MatrixView({ "model" : matrixModel });
+	matrixState.fetch();
+	matrixState.loadData();
+	matrixState.save();
+});
+</script>
+</head>
+<body>
+	<div class="container MatrixView"></div><br/>
+	<p><a href="http://jason.chuang.ca" target="_blank">Jason Chuang</a>, 
+		<a href="http://vis.stanford.edu" target="_blank">Vis</a> &amp; 
+		<a href="http://nlp.stanford.edu" target="_blank">NLP</a>, 
+		<a href="http://cs.stanford.edu" target="_blank">Stanford University</a>, 2013</p>
+</body>
+</html>

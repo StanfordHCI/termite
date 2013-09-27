@@ -1,0 +1,16 @@
+timestamp: 2013-09-26T23:42:46.638067
+CREATE TABLE TermTopicMatrix(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TIMESTAMP NOT NULL,
+    state TEXT NOT NULL,
+    prevId INTEGER NOT NULL
+);
+success!
+timestamp: 2013-09-26T23:50:51.755464
+CREATE TABLE TermTopicMatrix(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TIMESTAMP NOT NULL,
+    state TEXT NOT NULL,
+    prevId INTEGER NOT NULL
+);
+success!

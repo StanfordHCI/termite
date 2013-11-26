@@ -33,14 +33,21 @@ class Tokenize( object ):
 		handler.setLevel( logging_level )
 		self.logger.addHandler( handler )
 	
-	def execute( self, corpus_format, corpus_path, data_path, tokenization = None ):
-		
+	def execute( self, corpus_format, corpus_path, data_path, tokenization ):		
 		assert corpus_format is not None
 		assert corpus_path is not None
 		assert data_path is not None
 		if tokenization is None:
 			tokenization = Tokenize.DEFAULT_TOKENIZATION
-		
+		elif tokenization == 'unicode':
+			tokenization = Tokenize.UNICODE_TOKENIZATION
+		elif tokenization == 'whitespace':
+			tokenization = Tokenize.WHITESPACE_TOKENIZATION
+		elif tokenization == 'alpha':
+			tokenization = Tokenize.ALPHA_TOKENIZATION
+		elif tokenization == 'alphanumeric':
+			tokenization = Tokenize.ALPHANUMERIC_TOKENIZATION
+	
 		self.logger.info( '--------------------------------------------------------------------------------' )
 		self.logger.info( 'Tokenizing source corpus...'                                                      )
 		self.logger.info( '    corpus_path = %s (%s)', corpus_path, corpus_format                            )

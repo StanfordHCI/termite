@@ -45,7 +45,7 @@ class Execute( object ):
 		handler.setLevel( logging_level )
 		self.logger.addHandler( handler )
 	
-	def execute( self, corpus_format, corpus_path, model_library, model_path, data_path, num_topics, number_of_seriated_terms ):
+	def execute( self, corpus_format, corpus_path, tokenization, model_library, model_path, data_path, num_topics, number_of_seriated_terms ):
 		
 		assert corpus_format is not None
 		assert corpus_path is not None
@@ -67,7 +67,7 @@ class Execute( object ):
 		self.logger.info( '--------------------------------------------------------------------------------' )
 		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
-		Tokenize( self.logger.level ).execute( corpus_format, corpus_path, data_path )
+		Tokenize( self.logger.level ).execute( corpus_format, corpus_path, data_path, tokenization )
 		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
 		if model_library == 'stmt':
@@ -127,6 +127,8 @@ def main():
 		corpus_format = config.get( 'Corpus', 'format' )
 	if config.has_section( 'Corpus' ) and config.has_option( 'Corpus', 'path' ):
 		corpus_path = config.get( 'Corpus', 'path' )
+	if config.has_section( 'Corpus' ) and config.has_option( 'Corpus', 'tokenization' ):
+		tokenization = config.get( 'Corpus', 'tokenization' )
 	if config.has_section( 'TopicModel' ) and config.has_option( 'TopicModel', 'library' ):
 		model_library = config.get( 'TopicModel', 'library' )
 	if config.has_section( 'TopicModel' ) and config.has_option( 'TopicModel', 'path' ):
@@ -158,7 +160,7 @@ def main():
 	if args.logging is not None:
 		logging_level = args.logging
 	
-	Execute( logging_level ).execute( corpus_format, corpus_path, model_library, model_path, data_path, num_topics, number_of_seriated_terms )
+	Execute( logging_level ).execute( corpus_format, corpus_path, tokenization, model_library, model_path, data_path, num_topics, number_of_seriated_terms )
 
 if __name__ == '__main__':
 	main()

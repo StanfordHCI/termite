@@ -140,7 +140,7 @@ cp $LIBRARY/LICENSE $LIBRARY/LICENSE-stmt
 
 echo
 echo "Downloading Google Closure Compiler..."
-curl --insecure --location http://closure-compiler.googlecode.com/files/compiler-latest.zip > $LIBRARY/compiler-latest.zip
+curl --insecure --location http://dl.google.com/closure-compiler/compiler-latest.zip > $LIBRARY/compiler-latest.zip
 
 echo
 echo "Uncompressing Google Closure Compiler..."

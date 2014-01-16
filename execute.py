@@ -67,7 +67,7 @@ class Execute( object ):
 		self.logger.info( '--------------------------------------------------------------------------------' )
 		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
-		Tokenize( self.logger.level ).execute( corpus_format, corpus_path, data_path )
+		Tokenize( self.logger.level ).execute( corpus_format, corpus_path, data_path, tokenization=Tokenize.UNICODE_TOKENIZATION)
 		self.logger.info( 'Current time = {}'.format( time.ctime() ) )
 		
 		if model_library == 'stmt':
@@ -105,7 +105,7 @@ def main():
 	parser.add_argument( '--corpus-path'  , type = str, dest = 'corpus_path'  , help = 'Override corpus path in the config file.' )
 	parser.add_argument( '--model-library', type = str, dest = 'model_library', help = 'Override model library in the config file.' )
 	parser.add_argument( '--model-path'   , type = str, dest = 'model_path'   , help = 'Override model path in the config file.' )
-	parser.add_argument( '--num-topcis'   , type = int, dest = 'num_topics'   , help = 'Override number of topics in the config file.' )
+	parser.add_argument( '--num-topics'   , type = int, dest = 'num_topics'   , help = 'Override number of topics in the config file.' )
 	parser.add_argument( '--data-path'    , type = str, dest = 'data_path'    , help = 'Override data path in the config file.' )
 	parser.add_argument( '--number-of-seriated-terms', type = int, dest = 'number_of_seriated_terms', help = 'Override the number of terms to seriate.' )
 	parser.add_argument( '--logging'      , type = int, dest = 'logging'      , help = 'Override logging level specified in config file.' )

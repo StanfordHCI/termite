@@ -123,5 +123,8 @@ def WriteAsTabDelimited( data, filename, fields ):
 		for element in data:
 			values = []
 			for field in fields:
-				values.append( str( element[field] ) )
+                            if isinstance(element[field], unicode):
+                                values.append( element[field] )
+                            else:
+                                values.append( str( element[field] ) )
 			writer.writerow( values )

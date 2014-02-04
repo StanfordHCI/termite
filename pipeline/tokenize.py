@@ -23,7 +23,7 @@ class Tokenize( object ):
 	WHITESPACE_TOKENIZATION = r'[^ ]+'
 	ALPHANUMERIC_TOKENIZATION = r'[0-9A-Za-z_]*[A-Za-z_]+[0-9A-Za-z_]*'
 	ALPHA_TOKENIZATION = r'[A-Za-z_]+'
-	UNICODE_TOKENIZATION = r'[\p{L}\p{M}]+'
+	UNICODE_TOKENIZATION = r'[\w]+'
 	DEFAULT_TOKENIZATION = ALPHA_TOKENIZATION
 	
 	def __init__( self, logging_level ):
@@ -45,7 +45,7 @@ class Tokenize( object ):
 		self.logger.info( 'Tokenizing source corpus...'                                                      )
 		self.logger.info( '    corpus_path = %s (%s)', corpus_path, corpus_format                            )
 		self.logger.info( '    data_path = %s', data_path                                                    )
-		self.logger.info( '    tokenziation = %s', tokenization                                              )
+		self.logger.info( '    tokenization = %s', tokenization                                              )
 		
 		self.logger.info( 'Connecting to data...' )
 		self.documents = DocumentsAPI( corpus_format, corpus_path )

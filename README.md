@@ -22,8 +22,4 @@ Termite is a visualization tool for inspecting the output of statistical topic m
   Computer Science Dept, Stanford University  
   http://vis.stanford.edu/papers/termite  
 
-
-More information
-----------------
-
 For more details about this repository, see the file "README.old".

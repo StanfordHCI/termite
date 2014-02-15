@@ -15,11 +15,10 @@ Please see the respective repositories for the latest software and additional in
 Termite
 -------
 
-Termite is a visualization tool for inspecting the output of statistical topic models based on the techniques described in the following publication:
+Termite is a visualization tool for inspecting the output of statistical topic models based on the techniques described in the following publication. For more details about this repository, see the file "README.old".
 
   **Termite: Visualization Techniques for Assessing Textual Topic Models**  
   Jason Chuang, Christopher D. Manning, Jeffrey Heer  
   Computer Science Dept, Stanford University  
   http://vis.stanford.edu/papers/termite  
 
-For more details about this repository, see the file "README.old".

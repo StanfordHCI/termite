@@ -31,7 +31,7 @@ fi
 
 echo
 echo "Downloading D3 javascript library..."
-curl --insecure --location http://d3js.org/d3.v3.zip > $LIBRARY/d3.v3.zip
+curl --insecure --location https://github.com/mbostock/d3/releases/download/v3.4.1/d3.v3.zip > $LIBRARY/d3.v3.zip
 
 echo
 echo "Uncompressing D3 javascript library..."
@@ -140,7 +140,7 @@ cp $LIBRARY/LICENSE $LIBRARY/LICENSE-stmt
 
 echo
 echo "Downloading Google Closure Compiler..."
-curl --insecure --location http://closure-compiler.googlecode.com/files/compiler-latest.zip > $LIBRARY/compiler-latest.zip
+curl --insecure --location http://dl.google.com/closure-compiler/compiler-latest.zip > $LIBRARY/compiler-latest.zip
 
 echo
 echo "Uncompressing Google Closure Compiler..."
